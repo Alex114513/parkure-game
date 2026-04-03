@@ -1,0 +1,22 @@
+2026-04-03 21:36:12,430 - root - INFO - game start,debug enabled:True
+2026-04-03 21:36:14,976 - root - INFO - window resized to w:1085h:800
+2026-04-03 21:36:14,977 - root - INFO - start button received screen resize messege with data:(1, (1085, 800))
+2026-04-03 21:36:15,946 - root - INFO - window resized to w:1202h:800
+2026-04-03 21:36:15,947 - root - INFO - start button received screen resize messege with data:(1, (1202, 800))
+2026-04-03 21:36:16,847 - root - INFO - window resized to w:1920h:1017
+2026-04-03 21:36:16,847 - root - INFO - start button received screen resize messege with data:(1, (1920, 1017))
+2026-04-03 21:36:18,523 - root - INFO - window resized to w:1202h:800
+2026-04-03 21:36:18,523 - root - INFO - start button received screen resize messege with data:(1, (1202, 800))
+2026-04-03 21:36:21,711 - root - INFO - window resized to w:771h:800
+2026-04-03 21:36:21,712 - root - INFO - start button received screen resize messege with data:(1, (771, 800))
+2026-04-03 21:36:22,678 - root - INFO - window resized to w:180h:800
+2026-04-03 21:36:22,678 - root - INFO - start button received screen resize messege with data:(1, (180, 800))
+2026-04-03 21:36:28,848 - root - INFO - window resized to w:180h:160
+2026-04-03 21:36:28,848 - root - INFO - start button received screen resize messege with data:(1, (180, 160))
+2026-04-03 21:36:29,957 - root - INFO - window resized to w:180h:66
+2026-04-03 21:36:29,958 - root - INFO - start button received screen resize messege with data:(1, (180, 66))
+2026-04-03 21:36:31,953 - root - INFO - window resized to w:180h:274
+2026-04-03 21:36:31,953 - root - INFO - start button received screen resize messege with data:(1, (180, 274))
+2026-04-03 21:36:34,463 - root - INFO - window resized to w:1920h:1017
+2026-04-03 21:36:34,463 - root - INFO - start button received screen resize messege with data:(1, (1920, 1017))
+2026-04-03 21:36:39,044 - root - INFO - game quit

@@ -3,5 +3,5 @@ import const
 import main_title
 
 if __name__ == "__main__":
-    tools.log(f"game start,debug enabled:{const.debug_mode}" , "info")
+    tools.log(f"game start,debug enabled:{const.debug_mode}" , const.INFO)
     main_title.start()
