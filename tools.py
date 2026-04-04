@@ -5,7 +5,7 @@ import const
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    filename="parkure.txt",
+    filename="parkure.log",
     filemode="w"
 )
 

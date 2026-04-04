@@ -1,0 +1,7 @@
+{
+    "Start": {
+        "path": "pict\\buttons\\Start.png",
+        "size": [64, 32],
+        "position": [350, 400]
+    }
+}

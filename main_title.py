@@ -3,6 +3,11 @@ import const
 from pygame.locals import *
 import tools
 from sprites.buttons.Start import StartButton
+import json
+
+# Load button configuration from JSON file
+with open("pict/buttons/Start.json", "r") as f:
+    button_config = json.load(f)
 
 def start():
     #window
@@ -11,7 +16,10 @@ def start():
     pygame.display.set_caption("parkure")
 
     #build buttons
-    start_button = StartButton(100, 100)
+    start_button = StartButton(
+        button_config["Start"]["position"][0],
+        button_config["Start"]["position"][1]
+    )
 
     #connect signal to button instance
     const.SCREEN_RESIZE.connect(start_button.messege)
@@ -34,6 +42,11 @@ def start():
             if event.type == QUIT:
                 tools.log("game quit" , const.INFO)
                 done = True
+            
+            if event.type == MOUSEBUTTONDOWN:
+                if start_button.rect.collidepoint(event.pos):
+                    tools.log("start button clicked.start game" , const.INFO)
+                    start_button.clicked()
 
         #draw
         screen.fill ((50 , 50 , 80))
