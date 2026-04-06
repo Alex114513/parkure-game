@@ -25,8 +25,8 @@ class StartButton(pygame.sprite.Sprite):
             x_multiplier = data[1][0] / const.window_size[0]
             y_multiplier = data[1][1] / const.window_size[1]
             #calculate the new width and height of the button
-            new_width = int(64 * x_multiplier)
-            new_height = int(32 * y_multiplier)
+            new_width = int(button_config["Start"]["size"][0] * x_multiplier)
+            new_height = int(button_config["Start"]["size"][1] * y_multiplier)
             #apply the new width and height to the button image
             self.image = pygame.transform.scale(self.original_image , (new_width , new_height))
             #calculate the new x and y position of the button
@@ -36,5 +36,5 @@ class StartButton(pygame.sprite.Sprite):
             self.rect.x = new_x
             self.rect.y = new_y
     def clicked(self):
-        self.image = pygame.transform.scale(self.original_image , (int(64 * 1.2) , int(32 * 1.2)))
+        self.image = pygame.transform.scale(self.original_image , (int(button_config["Start"]["size"][0] * 1.2) , int(button_config["Start"]["size"][1] * 1.2)))
         self.rect = self.image.get_rect(center=self.rect.center)
