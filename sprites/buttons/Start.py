@@ -2,6 +2,7 @@ import pygame
 import const
 import tools
 import json
+from sprites.work.masks.mask import Mask
 
 #load button configuration from JSON file
 with open("pict/buttons/Start.json", "r") as f:
@@ -38,3 +39,4 @@ class StartButton(pygame.sprite.Sprite):
     def clicked(self):
         self.image = pygame.transform.scale(self.original_image , (int(button_config["Start"]["size"][0] * 1.2) , int(button_config["Start"]["size"][1] * 1.2)))
         self.rect = self.image.get_rect(center=self.rect.center)
+        Mask(const.BLACK).fade_in(3)

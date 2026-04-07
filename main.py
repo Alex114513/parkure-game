@@ -1,6 +1,6 @@
 import tools
 import const
-import main_title
+import scenes.main_title as main_title
 
 if __name__ == "__main__":
     tools.log(f"game start,debug enabled:{const.debug_mode}" , const.INFO)
