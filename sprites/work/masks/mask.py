@@ -13,8 +13,6 @@ class Mask(pygame.sprite.Sprite):
         self.fading = False
         self.target_alpha = 255
         self.speed = 0
-        # guard to ensure we only trigger game.start() once when fully black
-        self._started_called = False
         self.image.set_alpha(self.alpha)
         main_title.masks_group.add(self)
     
@@ -25,14 +23,6 @@ class Mask(pygame.sprite.Sprite):
                 if self.alpha >= self.target_alpha:
                     self.alpha = self.target_alpha
                     self.fading = False
-                    # If we've faded in to full black, start the game once
-                    if self.target_alpha == 255 and not self._started_called:
-                        try:
-                            main_title.swich()
-                        except Exception:
-                            # avoid crashing if starting the game raises; swallow so mask logic remains stable
-                            pass
-                        self._started_called = True
             elif self.alpha > self.target_alpha:
                 self.alpha -= self.speed
                 if self.alpha <= self.target_alpha:

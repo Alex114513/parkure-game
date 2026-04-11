@@ -2,14 +2,11 @@ import pygame
 import const
 from pygame.locals import *
 import tools
-from sprites.buttons.Start import StartButton
-import json
+from sprites.buttons.button import Button
 import scenes.game
+import sprites.work.masks.mask as mask
 
 # Load button configuration from JSON file
-with open("pict/buttons/Start.json", "r") as f:
-    button_config = json.load(f)
-
 masks_group = pygame.sprite.Group()
 
 window_size = const.window_size
@@ -25,10 +22,7 @@ def start():
     global window_size , done , screen
     
     #build buttons
-    start_button = StartButton(
-        button_config["Start"]["position"][0],
-        button_config["Start"]["position"][1]
-    )
+    start_button = Button("Start", "game")
 
     #connect signal to button
     const.SCREEN_RESIZE.connect(start_button.messege)
@@ -57,10 +51,14 @@ def start():
                 if start_button.rect.collidepoint(event.pos):
                     tools.log("start button clicked.start game" , const.INFO)
                     start_button.clicked()
+            
+            if event.type == const.SWITCH_TO_GAME_EVENT_CODE:
+                tools.log("switch to game event received, switching to game scene" , const.INFO)
+                swich()
 
         #draw
         masks_group.update()
-        screen.fill ((50 , 50 , 80))
+        screen.fill (const.DARK_BLUE)
         buttons_group.draw(screen)
         masks_group.draw(screen)
         pygame.display.update()

@@ -20,3 +20,7 @@ def log(log , type):
         logging.error(log)
     elif type == const.CRIC:
         logging.critical(log)
+
+def save_game():
+    log("save game function called" , const.DEBUG)
+    pass
