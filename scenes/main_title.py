@@ -3,10 +3,9 @@ import const
 from pygame.locals import *
 import tools
 from sprites.buttons.button import Button
-import scenes.game
+import scenes.game_prep
 import sprites.work.masks.mask as mask
 
-# Load button configuration from JSON file
 masks_group = pygame.sprite.Group()
 
 window_size = const.window_size
@@ -18,11 +17,14 @@ pygame.init()
 screen = pygame.display.set_mode(const.window_size , RESIZABLE)
 pygame.display.set_caption("parkure")
 
+#clock
+clock = pygame.time.Clock()
+
 def start():
     global window_size , done , screen
     
     #build buttons
-    start_button = Button("Start", "game")
+    start_button = Button("Start", const.TARGET_GAME)
 
     #connect signal to button
     const.SCREEN_RESIZE.connect(start_button.messege)
@@ -34,6 +36,9 @@ def start():
 
     #main loop
     while not done:
+
+        clock.tick(const.FPS)
+
         #events
         for event in pygame.event.get():
             if event.type == VIDEORESIZE:
@@ -70,4 +75,4 @@ def start():
 def swich():
     global done
     done = True
-    scenes.game.start()
+    scenes.game_prep.start()
