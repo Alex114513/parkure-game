@@ -24,7 +24,7 @@ def start():
     scenes.main_title.masks_group.add(start_mask)
 
     #init mask
-    start_mask.fade(3)
+    start_mask.fade(1)
 
     while not done:
 

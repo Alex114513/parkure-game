@@ -44,15 +44,19 @@ class Button(pygame.sprite.Sprite):
     def clicked(self):
         self.image = pygame.transform.scale(self.original_image , (int(button_config[self.type]["size"][0] * 1.2) , int(button_config[self.type]["size"][1] * 1.2)))
         self.rect = self.image.get_rect(center=self.rect.center)
-        Mask(const.BLACK).fade_in(3)
+        Mask(const.BLACK).fade_in(1)
         if self.target_scene == const.TARGET_GAME:
-            tools.log("start button clicked,scene will switch in about 3 seconds" , const.DEBUG)
-            pygame.time.set_timer(const.SWITCH_TO_GAME_EVENT_CODE, 2900)
+            tools.log("start button clicked,scene will switch in about 1 seconds" , const.DEBUG)
+            pygame.time.set_timer(const.SWITCH_TO_GAME_EVENT_CODE, 900)
 
         if self.target_scene == const.TARGET_NEW_SAVE:
-            tools.log("new save button clicked,scene will switch in about 3 seconds" , const.DEBUG)
-            pygame.time.set_timer(const.SWITCH_TO_NEW_SAVE_EVENT_CODE, 2900)
+            tools.log("new save button clicked,scene will switch in about 1 seconds" , const.DEBUG)
+            pygame.time.set_timer(const.SWITCH_TO_NEW_SAVE_EVENT_CODE, 900)
 
         if self.target_scene == const.TARGET_LOAD_SAVE:
-            tools.log("load save button clicked,scene will switch in about 3 seconds" , const.DEBUG)
-            pygame.time.set_timer(const.SWITCH_TO_LOAD_SAVE_EVENT_CODE, 2900)
+            tools.log("load save button clicked,scene will switch in about 1 seconds" , const.DEBUG)
+            pygame.time.set_timer(const.SWITCH_TO_LOAD_SAVE_EVENT_CODE, 900)
+
+        if self.target_scene == const.REAL_GAME:
+            tools.log("create button clicked,scene will switch in about 1 seconds" , const.DEBUG)
+            pygame.time.set_timer(const.SWITCH_TO_REAL_GAME_EVENT_CODE, 900)
