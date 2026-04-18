@@ -11,11 +11,11 @@ def start():
     done = False
 
     #sprites
-    sprites_group = pygame.sprite.Group()
+    buttons_group = pygame.sprite.Group()
     new_save_button = button.Button("new_save", const.TARGET_NEW_SAVE)
-    sprites_group.add(new_save_button)
+    buttons_group.add(new_save_button)
     load_save_button = button.Button("load_save", const.TARGET_LOAD_SAVE)
-    sprites_group.add(load_save_button)
+    buttons_group.add(load_save_button)
 
     const.SCREEN_RESIZE.connect(load_save_button.messege)
     const.SCREEN_RESIZE.connect(new_save_button.messege)
@@ -63,7 +63,7 @@ def start():
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
-        sprites_group.draw(scenes.main_title.screen)
+        buttons_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
         pygame.display.update()
 

@@ -3,7 +3,6 @@ import const
 import tools
 import json
 from sprites.work.masks.mask import Mask
-from scenes import game_prep
 
 #load button configuration from JSON file
 with open("pict/buttons/buttons_config.json", "r") as f:
@@ -14,6 +13,7 @@ class Button(pygame.sprite.Sprite):
         """type is the type of button to create, it should be a key in the button_config dictionary loaded from the JSON file"""
         super().__init__()
         self.image = pygame.image.load(button_config[type]["path"]).convert_alpha()
+        tools.log(f"button of type {type} created with image path {button_config[type]['path']}" , const.DEBUG)
         self.original_image = self.image
         self.original_x = button_config[type]["position"][0]
         self.original_y = button_config[type]["position"][1]

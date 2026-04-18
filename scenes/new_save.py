@@ -4,6 +4,7 @@ import tools
 import scenes.main_title
 from sprites.work.masks import mask
 from sprites.buttons import button
+from scenes import real_game
 from pygame.locals import *
 
 def start():
@@ -22,6 +23,9 @@ def start():
     create_button = button.Button("create", const.REAL_GAME)
     buttons_group.add(create_button)
 
+    #message connection
+    const.SCREEN_RESIZE.connect(create_button.messege)
+
     while not done:
         scenes.main_title.clock.tick(const.FPS)
         for event in pygame.event.get():
@@ -33,9 +37,27 @@ def start():
                 tools.log("switching to real game scene" , const.INFO)
                 done = True
                 switch(const.REAL_GAME)
+            
+            if event.type == VIDEORESIZE:
+                #resize window
+                scenes.main_title.screen = pygame.display.set_mode((event.w , event.h) , RESIZABLE)
+                tools.log(f"window resized to w:{event.w}h:{event.h}" , const.INFO)
+                const.SCREEN_RESIZE.send(data=(const.SCREEN_RESIZE_CODE, (event.w, event.h)))
+                scenes.main_title.window_size = (event.w, event.h)
+
+            if event.type == MOUSEBUTTONDOWN:
+                if create_button.rect.collidepoint(event.pos):
+                    tools.log("create button clicked.start real game scene" , const.INFO)
+                    create_button.clicked()
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
+        buttons_group.update()
+        buttons_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.update()
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
         pygame.display.update()
+
+def switch(scene):
+    if scene == const.REAL_GAME:
+        real_game.start()
