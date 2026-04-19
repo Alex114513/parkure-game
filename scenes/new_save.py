@@ -35,6 +35,7 @@ def start():
 
             if event.type == const.SWITCH_TO_REAL_GAME_EVENT_CODE:
                 tools.log("switching to real game scene" , const.INFO)
+                tools.new_save("player1")  # Replace "player1" with the actual player name
                 done = True
                 switch(const.REAL_GAME)
             

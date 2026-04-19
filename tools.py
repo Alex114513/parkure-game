@@ -1,4 +1,5 @@
 import logging
+import json
 from logging.handlers import RotatingFileHandler
 import const
 
@@ -21,6 +22,33 @@ def log(log , type):
     elif type == const.CRIC:
         logging.critical(log)
 
-def save_game():
+def new_save(name):
     log("save game function called" , const.DEBUG)
-    pass
+    
+    #sprite data
+    player_data = {
+        "name": name,
+        "level": 1,
+        "score": 0
+    }
+
+    #level data
+    level_data = {
+        "current_level": 1,
+        "unlocked_levels": [1],
+        "lv1": {
+            "enemies": [
+                {"type": "enemy1", "position": [100, 100]},
+                {"type": "enemy2", "position": [200, 200]}
+            ]
+        }
+
+    }
+    try:
+        with open(f"saves/{name}/player.json", "w") as f:
+            json.dump(player_data, f)
+        with open(f"saves/{name}/level.json", "w") as f:
+            json.dump(level_data, f)
+        log("game saved successfully" , const.INFO)
+    except Exception as e:
+        log(f"error saving game: {e}" , const.ERROR)
