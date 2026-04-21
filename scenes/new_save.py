@@ -61,4 +61,4 @@ def start():
 
 def switch(scene):
     if scene == const.REAL_GAME:
-        real_game.start()
+        real_game.start("player1")  # Replace "player1" with the actual player name

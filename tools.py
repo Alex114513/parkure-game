@@ -2,6 +2,7 @@ import logging
 import json
 from logging.handlers import RotatingFileHandler
 import const
+from pathlib import Path
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -23,20 +24,44 @@ def log(log , type):
         logging.critical(log)
 
 def new_save(name):
+    """Creates a new save file for the player with the given name. The save file will contain default player data and level data.
+    format of save data:
+        saves/save_name/player.json{
+            "name": "player1",
+            "level": 1,
+            "score": 0,
+            "position": [0, 0]
+        }
+        saves/save_name/level.json{
+            "current_level": 1,
+            "unlocked_levels": [1],
+            "lv1": {
+                "enemies": [
+                    {"type": "enemy1", "position": [100, 100]},
+                    {"type": "enemy2", "position": [200, 200]}
+                ]
+            }
+
+        }"""
     log("save game function called" , const.DEBUG)
-    
+
+    #path for save file
+    save_path = Path(f"saves/{name}")
+    save_path.mkdir(parents=True, exist_ok=True)
+
     #sprite data
     player_data = {
         "name": name,
         "level": 1,
-        "score": 0
+        "score": 0,
+        "position": [0, 0]
     }
 
     #level data
     level_data = {
         "current_level": 1,
         "unlocked_levels": [1],
-        "lv1": {
+        "1": {
             "enemies": [
                 {"type": "enemy1", "position": [100, 100]},
                 {"type": "enemy2", "position": [200, 200]}
@@ -45,10 +70,8 @@ def new_save(name):
 
     }
     try:
-        with open(f"saves/{name}/player.json", "w") as f:
-            json.dump(player_data, f)
-        with open(f"saves/{name}/level.json", "w") as f:
-            json.dump(level_data, f)
+        (save_path / "player.json").write_text(json.dumps(player_data, indent=4))
+        (save_path / "level.json").write_text(json.dumps(level_data, indent=4))
         log("game saved successfully" , const.INFO)
     except Exception as e:
         log(f"error saving game: {e}" , const.ERROR)
