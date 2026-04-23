@@ -54,7 +54,9 @@ def new_save(name):
         "name": name,
         "level": 1,
         "score": 0,
-        "position": [0, 0]
+        "position": [0, 0],
+        "accseleration": [0, 0],
+        "max_speed": [5, 10]
     }
 
     #level data

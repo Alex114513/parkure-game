@@ -3,6 +3,7 @@ import const
 import tools
 import json
 import scenes.main_title
+from sprites.player import Player
 from sprites.work.masks import mask
 
 #save
@@ -12,9 +13,14 @@ Save_name = None
 player_x = None
 player_y = None
 
-score = None
+player = Player(0, 0) #placeholder, will be updated in init()
 
+score = None
 level = None
+player_name = None
+
+player_acc = None
+player_max_speed = None
 
 #level data
 current_level = None
@@ -46,6 +52,12 @@ def init():
 
     score = player_data["score"]
     level = player_data["level"]
+    player_name = player_data["name"]
+
+    #physics attributes
+    player_acc = player_data["accseleration"]
+    player_max_speed = player_data["max_speed"]
+
 
     #level
     global current_level, unlocked_levels, level_sprites
@@ -55,6 +67,15 @@ def init():
 
     tools.log(f"player position: ({player_x}, {player_y}), score: {score}, level: {level}" , const.DEBUG)
     tools.log(f"current level: {current_level}, unlocked levels: {unlocked_levels}, level sprites: {level_sprites}" , const.DEBUG)
+
+    #TODO: initialize level sprites based on level_sprites data
+    player.rect.x = player_x
+    player.rect.y = player_y
+    player.score = score
+    player.level = level
+    player.name = player_name
+    player.accseleration = player_acc
+    player.max_speed = player_max_speed
 
 def start(save_name):
     global Save_name
@@ -66,6 +87,9 @@ def start(save_name):
     #groups and sprites
     init_start_mask = mask.Mask(const.BLACK)
     scenes.main_title.masks_group.add(init_start_mask)
+
+    player_group = pygame.sprite.Group()
+    player_group.add(player)
 
     #init start mask
     init_start_mask.fade(1) 
@@ -85,4 +109,6 @@ def start(save_name):
         scenes.main_title.screen.fill(const.DARK_BLUE)
         scenes.main_title.masks_group.update()
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
+        player_group.update()
+        player_group.draw(scenes.main_title.screen)
         pygame.display.update()
