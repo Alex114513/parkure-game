@@ -5,7 +5,7 @@ import json
 from sprites.work.masks.mask import Mask
 
 #load button configuration from JSON file
-with open("pict/buttons/buttons_config.json", "r") as f:
+with open("configs/buttons_config.json", "r") as f:
     button_config = json.load(f)
 
 class Button(pygame.sprite.Sprite):

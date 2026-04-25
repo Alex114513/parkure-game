@@ -5,6 +5,7 @@ import json
 import scenes.main_title
 from sprites.player import Player
 from sprites.work.masks import mask
+from pygame.locals import *
 
 #save
 Save_name = None
@@ -21,6 +22,8 @@ player_name = None
 
 player_acc = None
 player_max_speed = None
+player_friction = None
+player_gravity = None
 
 #level data
 current_level = None
@@ -38,6 +41,8 @@ def init():
             player_data = json.load(f)
         with open(f"{save_path}/level.json", "r") as f:
             level_data = json.load(f)
+        with open(f"configs/players/{player_data['name']}..json", "r") as f:
+            player_config = json.load(f)
         tools.log("save data loaded successfully" , const.INFO)
     except Exception as e:
         tools.log(f"error loading save data: {e}" , const.ERROR)
@@ -55,8 +60,10 @@ def init():
     player_name = player_data["name"]
 
     #physics attributes
-    player_acc = player_data["accseleration"]
-    player_max_speed = player_data["max_speed"]
+    player_acc = player_config["accseleration"]
+    player_max_speed = player_config["max_speed"]
+    player_friction = player_config["friction"]
+    player_gravity = player_config["gravity"]
 
 
     #level
@@ -67,6 +74,7 @@ def init():
 
     tools.log(f"player position: ({player_x}, {player_y}), score: {score}, level: {level}" , const.DEBUG)
     tools.log(f"current level: {current_level}, unlocked levels: {unlocked_levels}, level sprites: {level_sprites}" , const.DEBUG)
+    tools.log(f"player accseleration: {player_acc}, player max speed: {player_max_speed}" , const.DEBUG)
 
     #TODO: initialize level sprites based on level_sprites data
     player.rect.x = player_x
@@ -76,6 +84,8 @@ def init():
     player.name = player_name
     player.accseleration = player_acc
     player.max_speed = player_max_speed
+    player.friction = player_friction
+    player.gravity = player_gravity
 
 def start(save_name):
     global Save_name
@@ -104,6 +114,23 @@ def start(save_name):
             if event.type == pygame.QUIT:
                 tools.log("game quit" , const.INFO)
                 done = True
+            
+            if event.type == VIDEORESIZE:
+                #resize window
+                scenes.main_title.screen = pygame.display.set_mode((event.w , event.h) , RESIZABLE)
+                tools.log(f"window resized to w:{event.w}h:{event.h}" , const.INFO)
+                const.SCREEN_RESIZE.send(data=(const.SCREEN_RESIZE_CODE, (event.w, event.h)))
+                scenes.main_title.window_size = (event.w, event.h)
+            
+        
+        #keys
+        keys = pygame.key.get_pressed()
+        #player movement
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            player.velocity_x -= player.accseleration[0]
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            player.velocity_x += player.accseleration[0]
+
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
