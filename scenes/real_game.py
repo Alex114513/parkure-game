@@ -30,6 +30,8 @@ current_level = None
 unlocked_levels = None
 level_sprites = None
 
+
+@tools.Check_time(10)
 def init():
     global Save_name
     tools.log(f"initializing real game scene with save name: {Save_name}" , const.DEBUG)

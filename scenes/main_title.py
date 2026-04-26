@@ -10,6 +10,8 @@ masks_group = pygame.sprite.Group()
 
 window_size = const.window_size
 
+buttons_group = pygame.sprite.Group()
+
 done = False
 
 #window
@@ -29,9 +31,6 @@ def start():
     #connect signal to button
     const.SCREEN_RESIZE.connect(start_button.messege)
 
-    #build groups
-    buttons_group = pygame.sprite.Group()
-    
     buttons_group.add(start_button)
 
     #main loop
@@ -73,6 +72,8 @@ def start():
     pygame.quit()
 
 def swich():
-    global done
+    global done, buttons_group, masks_group
     done = True
+    buttons_group.empty()
+    masks_group.empty()
     scenes.game_prep.start()

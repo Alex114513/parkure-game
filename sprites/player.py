@@ -37,8 +37,6 @@ class Player(pygame.sprite.Sprite):
             elif self.velocity_x < 0:
                 self.velocity_x *= self.friction
         
-        print(f"player velocity: ({self.velocity_x}, {self.velocity_y})")
-        
         if abs(self.velocity_x) < 0.1:
             self.velocity_x = 0
 
@@ -56,4 +54,3 @@ class Player(pygame.sprite.Sprite):
         
         #update player position based on velocity
         self.rect.x += self.velocity_x
-        print(f"player rect x: {self.rect.x}")

@@ -3,6 +3,7 @@ import json
 from logging.handlers import RotatingFileHandler
 import const
 from pathlib import Path
+import pygame
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -75,3 +76,18 @@ def new_save(name):
         log("game saved successfully" , const.INFO)
     except Exception as e:
         log(f"error saving game: {e}" , const.ERROR)
+
+def Check_time(max):
+    """used to check if the time since the last call to this function is greater than the given max time. This can be used to limit how often certain actions can be performed, such as attacking or using a skill."""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            start_time = pygame.time.get_ticks()
+            func(*args, **kwargs)
+            end_time = pygame.time.get_ticks()
+            if end_time - start_time > max:
+                log(f"{func.__name__} used {end_time - start_time} ms since last use, wich exeded{max}ms." , const.ERROR)
+            else:
+                log(f"{func.__name__} used {end_time - start_time} ms since last use, wich is within the limit of {max}ms." , const.INFO)
+
+        return wrapper
+    return decorator

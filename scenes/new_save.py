@@ -7,6 +7,8 @@ from sprites.buttons import button
 from scenes import real_game
 from pygame.locals import *
 
+buttons_group = pygame.sprite.Group()
+
 def start():
     tools.log("new save scene start" , const.INFO)
     done = False
@@ -19,7 +21,6 @@ def start():
     start_mask.fade(1)
 
     #buttons
-    buttons_group = pygame.sprite.Group()
     create_button = button.Button("create", const.REAL_GAME)
     buttons_group.add(create_button)
 
@@ -60,5 +61,10 @@ def start():
         pygame.display.update()
 
 def switch(scene):
+    global done, buttons_group, masks_group
+    done = True
+
+    buttons_group.empty()
+    scenes.main_title.masks_group.empty()
     if scene == const.REAL_GAME:
         real_game.start("player1")  # Replace "player1" with the actual player name

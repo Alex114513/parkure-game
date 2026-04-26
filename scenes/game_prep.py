@@ -6,12 +6,13 @@ import sprites.buttons.button as button
 import sprites.work.masks.mask as mask
 from pygame.locals import *
 
+buttons_group = pygame.sprite.Group()
+
 def start():
     tools.log("game scene start" , const.INFO)
     done = False
 
     #sprites
-    buttons_group = pygame.sprite.Group()
     new_save_button = button.Button("new_save", const.TARGET_NEW_SAVE)
     buttons_group.add(new_save_button)
     load_save_button = button.Button("load_save", const.TARGET_LOAD_SAVE)
@@ -71,7 +72,11 @@ def start():
         scenes.main_title.masks_group.update()
 
 def swich(to):
+    global done, buttons_group, masks_group
+    done = True
     tools.log(f"switching to {to}" , const.INFO)
+    buttons_group.empty()
+    scenes.main_title.masks_group.empty()
     if to == const.TARGET_NEW_SAVE:
         import scenes.new_save as new_save
         new_save.start()

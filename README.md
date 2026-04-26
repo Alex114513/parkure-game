@@ -10,6 +10,9 @@ This is a parkour game made by a twelve-year old,so don't expect it to be very f
 
 **3**.Run the **main.py**  file with **python**.
 
+***Or***
+
+
 After the three steps on top,  you should see a pygame window.Now you can start playing!
 
 ### Control
