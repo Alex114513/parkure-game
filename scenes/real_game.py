@@ -6,6 +6,7 @@ import scenes.main_title
 from sprites.player import Player
 from sprites.work.masks import mask
 from pygame.locals import *
+from sprites.ground.platform import Platform
 
 #save
 Save_name = None
@@ -29,6 +30,10 @@ player_gravity = None
 current_level = None
 unlocked_levels = None
 level_sprites = None
+
+#global groups
+platforms_group = pygame.sprite.Group()
+enemies_group = pygame.sprite.Group()
 
 
 @tools.Check_time(10)
@@ -89,6 +94,19 @@ def init():
     player.friction = player_friction
     player.gravity = player_gravity
 
+    #sumon platforms, enemies, etc based on level_sprites data
+
+    this_level_data = level_data[str(current_level)]
+
+    #platforms
+    for platform in this_level_data["platforms"]:
+        pos = platform["position"]
+        size = platform["size"]
+        new_platform = Platform(pos[0], pos[1], size[0], size[1])
+        platforms_group.add(new_platform)
+        tools.log(f"platform created at position: {pos} with size: {size}" , const.DEBUG)
+        #add new_platform to the appropriate sprite group for platforms
+
 def start(save_name):
     global Save_name
 
@@ -138,6 +156,7 @@ def start(save_name):
         scenes.main_title.screen.fill(const.DARK_BLUE)
         scenes.main_title.masks_group.update()
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
+        platforms_group.draw(scenes.main_title.screen)
         player_group.update()
         player_group.draw(scenes.main_title.screen)
         pygame.display.update()
