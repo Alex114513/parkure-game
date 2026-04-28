@@ -25,6 +25,7 @@ player_acc = None
 player_max_speed = None
 player_friction = None
 player_gravity = None
+player_jump_strength = None
 
 #level data
 current_level = None
@@ -71,6 +72,7 @@ def init():
     player_max_speed = player_config["max_speed"]
     player_friction = player_config["friction"]
     player_gravity = player_config["gravity"]
+    player_jump_strength = player_config["jump_strength"]
 
 
     #level
@@ -93,6 +95,7 @@ def init():
     player.max_speed = player_max_speed
     player.friction = player_friction
     player.gravity = player_gravity
+    player.jump_strength = player_jump_strength
 
     #sumon platforms, enemies, etc based on level_sprites data
 
@@ -141,6 +144,11 @@ def start(save_name):
                 tools.log(f"window resized to w:{event.w}h:{event.h}" , const.INFO)
                 const.SCREEN_RESIZE.send(data=(const.SCREEN_RESIZE_CODE, (event.w, event.h)))
                 scenes.main_title.window_size = (event.w, event.h)
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if player.on_ground:
+                        player.velocity_y -= player.jump_strength
             
         
         #keys

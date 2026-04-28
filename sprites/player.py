@@ -1,4 +1,5 @@
 import pygame
+from scenes import  real_game
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -21,11 +22,11 @@ class Player(pygame.sprite.Sprite):
         self.velocity_x = 0
         self.velocity_y = 0
         self.on_ground = False
-        self.on_ground = True #for now, on_ground is always true, will be updated in the future when we add platforms and jumping
         self.accseleration = [0, 0]
         self.max_speed = [5, 10]
         self.friction = 0.1
         self.gravity = 0.5
+        self.jump_strength = 10
     
     def update(self):
         #TODO: add player movement and physics here
@@ -53,4 +54,20 @@ class Player(pygame.sprite.Sprite):
                 self.velocity_y = self.max_speed[1]
         
         #update player position based on velocity
-        self.rect.x += self.velocity_x
+        self.try_move(self.velocity_x, self.velocity_y)
+    
+    def try_move(self, dx, dy):
+        self.rect.x += dx
+        if self.collide():
+            self.rect.x -= dx
+        self.rect.y += dy
+        if self.collide():
+            self.rect.y -= dy
+    
+    def collide(self):
+        for platform in real_game.platforms_group:
+            if self.rect.colliderect(platform.rect):
+                self.on_ground = True
+                return True
+        self.on_ground = False
+        return False

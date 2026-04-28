@@ -68,7 +68,7 @@ def new_save(name):
                 {"type": "enemy2", "position": [200, 200]}
             ],
             "platforms": [
-                {"position": [50, 150], "size": [100, 20]},
+                {"position": [0, 150], "size": [100, 20]},
                 {"position": [200, 300], "size": [150, 20]}
             ]
         }
