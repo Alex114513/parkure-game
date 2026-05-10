@@ -166,5 +166,6 @@ def start(save_name):
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
         platforms_group.draw(scenes.main_title.screen)
         player_group.update()
+        platforms_group.update()
         player_group.draw(scenes.main_title.screen)
         pygame.display.update()

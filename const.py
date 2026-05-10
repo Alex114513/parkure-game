@@ -32,3 +32,8 @@ GREEN = (0, 255, 0)
 DARK_BLUE = (50, 50, 80)
 
 FPS = 60
+
+#camera
+camera_scroll_speed = 5
+least_move_threshold = 0.1
+least_camera_x = 0

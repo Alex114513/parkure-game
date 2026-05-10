@@ -1,5 +1,8 @@
 import pygame
+import tools
+import global_var
 from scenes import  real_game
+import const
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -55,6 +58,21 @@ class Player(pygame.sprite.Sprite):
         
         #update player position based on velocity
         self.try_move(self.velocity_x, self.velocity_y)
+
+        #camera stuff
+        if self.rect.x - global_var.camera_x > const.window_size[0] * (1 - const.least_move_threshold):
+            global_var.camera_x = self.rect.x - const.window_size[0] * (1 - const.least_move_threshold)
+            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
+        elif self.rect.x - global_var.camera_x < const.window_size[0] * const.least_move_threshold:
+            global_var.camera_x = self.rect.x - const.window_size[0] * const.least_move_threshold
+            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
+        
+        if global_var.camera_x < const.least_camera_x:
+            global_var.camera_x = const.least_camera_x
+            tools.log(f"camera_x adjusted to {global_var.camera_x}", const.DEBUG)
+        
+        #adjust player position based on camera
+        self.rect.x -= global_var.camera_x
     
     def try_move(self, dx, dy):
         self.rect.x += dx

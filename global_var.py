@@ -1,0 +1,3 @@
+#camera
+camera_x = 0
+camera_y = 0
