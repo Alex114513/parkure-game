@@ -150,6 +150,18 @@ def start(save_name):
                     if player.on_ground:
                         player.velocity_y -= player.jump_strength
             
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_0:
+                    if const.debug_mode:
+                        if player.edit_mode:
+                            tools.log(f"Eddit mode disabled", const.INFO)
+                            player.edit_mode = False
+                        else:    
+                            tools.log(f"Eddit mode enabled", const.INFO)
+                            player.edit_mode = True
+                    else:
+                        tools.log(f"Could not enable edit mode, because debug mode is {const.debug_mode}", const.INFO)
+            
         
         #keys
         keys = pygame.key.get_pressed()

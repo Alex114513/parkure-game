@@ -2,6 +2,7 @@ import pygame
 import json
 import global_var
 import tools
+import const
 
 with open("configs/ground_objects_config.json", "r") as f:
     platform_config = json.load(f)
@@ -17,4 +18,4 @@ class Platform(pygame.sprite.Sprite):
     
     def update(self):
         #adjust platform position based on camera
-        self.rect.x -= global_var.camera_x
+        self.rect.x -= global_var.camera_x * const.cam_move_step

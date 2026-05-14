@@ -30,11 +30,58 @@ class Player(pygame.sprite.Sprite):
         self.friction = 0.1
         self.gravity = 0.5
         self.jump_strength = 10
+
+        #debugging
+        self.edit_mode = False
     
     def update(self):
         #TODO: add player movement and physics here
+        
+        if self.edit_mode:
+            self.velocity_x = 0
+            self.velocity_y = 0
+            
+            self.edit_stuff()
+        else:
+            self.normal_phisics_update()
 
-        #frichtion
+        #update player position based on velocity
+        self.try_move(self.velocity_x, self.velocity_y)
+
+        #camera stuff
+        if self.rect.x - global_var.camera_x > const.window_size[0] * (1 - const.least_move_threshold):
+            global_var.camera_x = self.rect.x - const.window_size[0] * (1 - const.least_move_threshold)
+            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
+        elif self.rect.x - global_var.camera_x < const.window_size[0] * const.least_move_threshold:
+            global_var.camera_x = self.rect.x - const.window_size[0] * const.least_move_threshold
+            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
+        
+        if global_var.camera_x < const.least_camera_x:
+            global_var.camera_x = const.least_camera_x
+            tools.log(f"camera_x adjusted to {global_var.camera_x}", const.DEBUG)
+        
+
+        #adjust player position based on camera
+        self.rect.x -= global_var.camera_x * const.cam_move_step
+    
+    def try_move(self, dx, dy):
+        self.rect.x += dx
+        if self.collide():
+            self.rect.x -= dx
+        self.rect.y += dy
+        if self.collide():
+            self.rect.y -= dy
+    
+    def collide(self):
+        for platform in real_game.platforms_group:
+            if self.rect.colliderect(platform.rect):
+                self.on_ground = True
+                return True
+        self.on_ground = False
+        return False
+    
+    def normal_phisics_update(self):
+         #friction
         if self.on_ground:#for now, on_ground is always true, will be updated in the future when we add platforms and jumping
             if self.velocity_x > 0:
                 self.velocity_x *= self.friction
@@ -56,36 +103,5 @@ class Player(pygame.sprite.Sprite):
             if self.velocity_y > self.max_speed[1]:
                 self.velocity_y = self.max_speed[1]
         
-        #update player position based on velocity
-        self.try_move(self.velocity_x, self.velocity_y)
-
-        #camera stuff
-        if self.rect.x - global_var.camera_x > const.window_size[0] * (1 - const.least_move_threshold):
-            global_var.camera_x = self.rect.x - const.window_size[0] * (1 - const.least_move_threshold)
-            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
-        elif self.rect.x - global_var.camera_x < const.window_size[0] * const.least_move_threshold:
-            global_var.camera_x = self.rect.x - const.window_size[0] * const.least_move_threshold
-            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
-        
-        if global_var.camera_x < const.least_camera_x:
-            global_var.camera_x = const.least_camera_x
-            tools.log(f"camera_x adjusted to {global_var.camera_x}", const.DEBUG)
-        
-        #adjust player position based on camera
-        self.rect.x -= global_var.camera_x
-    
-    def try_move(self, dx, dy):
-        self.rect.x += dx
-        if self.collide():
-            self.rect.x -= dx
-        self.rect.y += dy
-        if self.collide():
-            self.rect.y -= dy
-    
-    def collide(self):
-        for platform in real_game.platforms_group:
-            if self.rect.colliderect(platform.rect):
-                self.on_ground = True
-                return True
-        self.on_ground = False
-        return False
+    def edit_stuff(self):
+        pass

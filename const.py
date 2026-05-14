@@ -35,5 +35,6 @@ FPS = 60
 
 #camera
 camera_scroll_speed = 5
-least_move_threshold = 0.1
+least_move_threshold = 0.3
 least_camera_x = 0
+cam_move_step = 0.1
