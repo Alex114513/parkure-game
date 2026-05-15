@@ -34,7 +34,7 @@ DARK_BLUE = (50, 50, 80)
 FPS = 60
 
 #camera
-camera_scroll_speed = 5
-least_move_threshold = 0.3
-least_camera_x = 0
-cam_move_step = 0.1
+CAMERA_SCROLL_SPEED = 5
+CAMERA_MOVE_THRESHOLD = 0.3
+LEAST_CAMERA_X = 0
+CAMERA_MOVE_STEP = 0.7

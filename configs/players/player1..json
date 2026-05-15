@@ -5,6 +5,7 @@
         "height": 32
     },
     "accseleration": [2, 2],
+    "moving_speed": [7, 5],
     "max_speed": [5, 5],
     "friction": 0.725,
     "gravity": 0.5,

@@ -18,4 +18,4 @@ class Platform(pygame.sprite.Sprite):
     
     def update(self):
         #adjust platform position based on camera
-        self.rect.x -= global_var.camera_x * const.cam_move_step
+        self.rect.x -= global_var.camera_x * const.CAMERA_MOVE_STEP

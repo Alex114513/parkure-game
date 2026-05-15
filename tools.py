@@ -89,7 +89,7 @@ def Check_time(max):
             func(*args, **kwargs)
             end_time = pygame.time.get_ticks()
             if end_time - start_time > max:
-                log(f"{func.__name__} used {end_time - start_time} ms since last use, wich exeded{max}ms." , const.ERROR)
+                log(f"{func.__name__} used {end_time - start_time} ms since last use, wich exeded{max}ms." , const.WARNING)
             else:
                 log(f"{func.__name__} used {end_time - start_time} ms since last use, wich is within the limit of {max}ms." , const.INFO)
 

@@ -49,20 +49,23 @@ class Player(pygame.sprite.Sprite):
         self.try_move(self.velocity_x, self.velocity_y)
 
         #camera stuff
-        if self.rect.x - global_var.camera_x > const.window_size[0] * (1 - const.least_move_threshold):
-            global_var.camera_x = self.rect.x - const.window_size[0] * (1 - const.least_move_threshold)
-            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
-        elif self.rect.x - global_var.camera_x < const.window_size[0] * const.least_move_threshold:
-            global_var.camera_x = self.rect.x - const.window_size[0] * const.least_move_threshold
-            tools.log(f"camera_x updated to {global_var.camera_x}", const.DEBUG)
+        if self.rect.x > (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)):
+            global_var.camera_x += min((self.rect.x - (const.window_size[0] - const.CAMERA_MOVE_THRESHOLD)) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
+        elif self.rect.x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
+            global_var.camera_x -= min((const.CAMERA_MOVE_THRESHOLD - self.rect.x) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
         
-        if global_var.camera_x < const.least_camera_x:
-            global_var.camera_x = const.least_camera_x
-            tools.log(f"camera_x adjusted to {global_var.camera_x}", const.DEBUG)
+        #limmit camera movement based on player position
+        if self.rect.x - global_var.camera_x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
+            global_var.camera_x = self.rect.x - (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD)
+        elif self.rect.x - global_var.camera_x > (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)):
+            global_var.camera_x = self.rect.x - (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD))
         
-
+        #least limmit for camera
+        if global_var.camera_x < const.LEAST_CAMERA_X:
+            global_var.camera_x = const.LEAST_CAMERA_X
+        
         #adjust player position based on camera
-        self.rect.x -= global_var.camera_x * const.cam_move_step
+        self.rect.x -= global_var.camera_x * const.CAMERA_MOVE_STEP
     
     def try_move(self, dx, dy):
         self.rect.x += dx
@@ -78,11 +81,20 @@ class Player(pygame.sprite.Sprite):
                 self.on_ground = True
                 return True
         self.on_ground = False
+        if self.rect.x < 0:
+            return True
         return False
     
     def normal_phisics_update(self):
-         #friction
-        if self.on_ground:#for now, on_ground is always true, will be updated in the future when we add platforms and jumping
+        #velocity
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.velocity_x = max(self.velocity_x - self.accseleration[0], -self.max_speed[0])
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.velocity_x = min(self.velocity_x + self.accseleration[0], self.max_speed[0])
+
+        #friction
+        if self.on_ground:
             if self.velocity_x > 0:
                 self.velocity_x *= self.friction
             elif self.velocity_x < 0:
@@ -98,10 +110,25 @@ class Player(pygame.sprite.Sprite):
         self.velocity_y = min(self.velocity_y, self.max_speed[1])
         
         #gravity
-        if not self.on_ground:#for now, on_ground is always true, will be updated in the future when we add platforms and jumping
+        if not self.on_ground:
             self.velocity_y += self.gravity
             if self.velocity_y > self.max_speed[1]:
                 self.velocity_y = self.max_speed[1]
         
     def edit_stuff(self):
-        pass
+        #velocity
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.velocity_x = max(self.velocity_x - self.accseleration[0], -self.max_speed[0])
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.velocity_x = min(self.velocity_x + self.accseleration[0], self.max_speed[0])
+        
+        #up and down for edit mode
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            self.velocity_y = max(self.velocity_y - self.accseleration[1], -self.max_speed[1])
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            self.velocity_y = min(self.velocity_y + self.accseleration[1], self.max_speed[1])
+        
+        self.velocity_x = max(min(self.velocity_x, self.max_speed[0]), -self.max_speed[0])
+        self.velocity_y = max(min(self.velocity_y, self.max_speed[1]), -self.max_speed[1])

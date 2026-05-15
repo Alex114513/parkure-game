@@ -161,16 +161,6 @@ def start(save_name):
                             player.edit_mode = True
                     else:
                         tools.log(f"Could not enable edit mode, because debug mode is {const.debug_mode}", const.INFO)
-            
-        
-        #keys
-        keys = pygame.key.get_pressed()
-        #player movement
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            player.velocity_x -= player.accseleration[0]
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            player.velocity_x += player.accseleration[0]
-
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
