@@ -13,9 +13,12 @@ class Platform(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image = pygame.image.load("pict/ground/platform.png").convert_alpha()
         self.rect = self.image.get_rect()
+        self.world_x = x
+        self.world_y = y
         self.rect.topleft = (x, y)
         self.degree = degree  # Rotation degree, if needed
     
     def update(self):
-        #adjust platform position based on camera
-        self.rect.x -= global_var.camera_x * const.CAMERA_MOVE_STEP
+        #adjust platform position based on camera offset, not cumulative movement
+        self.rect.x = self.world_x - global_var.camera_x * const.CAMERA_MOVE_STEP
+        self.rect.y = self.world_y

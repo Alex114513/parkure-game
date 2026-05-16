@@ -49,10 +49,16 @@ class Player(pygame.sprite.Sprite):
         self.try_move(self.velocity_x, self.velocity_y)
 
         #camera stuff
+        old_camera_x = global_var.camera_x
         if self.rect.x > (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)):
-            global_var.camera_x += min((self.rect.x - (const.window_size[0] - const.CAMERA_MOVE_THRESHOLD)) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
+            camera_move_target = min((self.rect.x - (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD))) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
+            global_var.camera_x += camera_move_target
+            tools.log(f"player too right:player_x is {self.rect.x}, range is {const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)}, moving camera right by {camera_move_target}" , const.DEBUG)
+
         elif self.rect.x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
-            global_var.camera_x -= min((const.CAMERA_MOVE_THRESHOLD - self.rect.x) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
+            camera_move_target = min(((const.window_size[0] * const.CAMERA_MOVE_THRESHOLD) - self.rect.x) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
+            global_var.camera_x -= camera_move_target
+            tools.log(f"player too left:player_x is {self.rect.x}, range is {const.window_size[0] * const.CAMERA_MOVE_THRESHOLD}, moving camera left by {camera_move_target}" , const.DEBUG)
         
         #limmit camera movement based on player position
         if self.rect.x - global_var.camera_x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
@@ -64,25 +70,49 @@ class Player(pygame.sprite.Sprite):
         if global_var.camera_x < const.LEAST_CAMERA_X:
             global_var.camera_x = const.LEAST_CAMERA_X
         
-        #adjust player position based on camera
-        self.rect.x -= global_var.camera_x * const.CAMERA_MOVE_STEP
+        #stop camera if it's speed is too low to prevent jitter
+        if abs(global_var.camera_x - old_camera_x) < 0.8:
+            global_var.camera_x = old_camera_x
+
+        camera_delta = global_var.camera_x - old_camera_x
+        self.rect.x -= camera_delta * const.CAMERA_MOVE_STEP
     
     def try_move(self, dx, dy):
-        self.rect.x += dx
-        if self.collide():
-            self.rect.x -= dx
-        self.rect.y += dy
-        if self.collide():
-            self.rect.y -= dy
-    
+        self.move_axis(dx, 0)
+        self.move_axis(0, dy)
+        self.on_ground = self.check_on_ground()
+
+    def move_axis(self, dx, dy):
+        if dx != 0:
+            self.rect.x += dx
+            if self.collide():
+                direction = 1 if dx > 0 else -1
+                while self.collide():
+                    self.rect.x -= direction
+                self.velocity_x = 0
+
+        if dy != 0:
+            self.rect.y += dy
+            if self.collide():
+                direction = 1 if dy > 0 else -1
+                while self.collide():
+                    self.rect.y -= direction
+                self.velocity_y = 0
+
     def collide(self):
-        for platform in real_game.platforms_group:
-            if self.rect.colliderect(platform.rect):
-                self.on_ground = True
-                return True
-        self.on_ground = False
         if self.rect.x < 0:
             return True
+        for platform in real_game.platforms_group:
+            if self.rect.colliderect(platform.rect):
+                return True
+        return False
+
+    def check_on_ground(self):
+        test_rect = self.rect.copy()
+        test_rect.y += 1
+        for platform in real_game.platforms_group:
+            if test_rect.colliderect(platform.rect):
+                return True
         return False
     
     def normal_phisics_update(self):
