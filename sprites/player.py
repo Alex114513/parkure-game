@@ -1,6 +1,7 @@
 import pygame
 import tools
 import global_var
+import edit_mode_currsor
 from scenes import  real_game
 import const
 
@@ -11,6 +12,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+        self.calc_x = x
+        self.calc_y = y
 
         #TODO: add more player attributes like health, speed, etc.
         self.score = 0
@@ -28,6 +32,7 @@ class Player(pygame.sprite.Sprite):
         self.accseleration = [0, 0]
         self.max_speed = [5, 10]
         self.friction = 0.1
+        self.air_friction = 0.95
         self.gravity = 0.5
         self.jump_strength = 10
 
@@ -38,9 +43,6 @@ class Player(pygame.sprite.Sprite):
         #TODO: add player movement and physics here
         
         if self.edit_mode:
-            self.velocity_x = 0
-            self.velocity_y = 0
-            
             self.edit_stuff()
         else:
             self.normal_phisics_update()
@@ -49,33 +51,22 @@ class Player(pygame.sprite.Sprite):
         self.try_move(self.velocity_x, self.velocity_y)
 
         #camera stuff
-        old_camera_x = global_var.camera_x
-        if self.rect.x > (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)):
-            camera_move_target = min((self.rect.x - (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD))) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
-            global_var.camera_x += camera_move_target
-            tools.log(f"player too right:player_x is {self.rect.x}, range is {const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)}, moving camera right by {camera_move_target}" , const.DEBUG)
+        left_limit = global_var.window_size[0] * const.CAMERA_MOVE_THRESHOLD
+        right_limit = global_var.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)
+        screen_x = self.calc_x - global_var.camera_x
 
-        elif self.rect.x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
-            camera_move_target = min(((const.window_size[0] * const.CAMERA_MOVE_THRESHOLD) - self.rect.x) * const.CAMERA_MOVE_STEP, const.CAMERA_SCROLL_SPEED)
-            global_var.camera_x -= camera_move_target
-            tools.log(f"player too left:player_x is {self.rect.x}, range is {const.window_size[0] * const.CAMERA_MOVE_THRESHOLD}, moving camera left by {camera_move_target}" , const.DEBUG)
-        
-        #limmit camera movement based on player position
-        if self.rect.x - global_var.camera_x < (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD):
-            global_var.camera_x = self.rect.x - (const.window_size[0] * const.CAMERA_MOVE_THRESHOLD)
-        elif self.rect.x - global_var.camera_x > (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)):
-            global_var.camera_x = self.rect.x - (const.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD))
-        
-        #least limmit for camera
+        if screen_x < left_limit:
+            global_var.camera_x -= left_limit - screen_x
+        elif screen_x > right_limit:
+            global_var.camera_x += screen_x - right_limit
+
         if global_var.camera_x < const.LEAST_CAMERA_X:
             global_var.camera_x = const.LEAST_CAMERA_X
         
-        #stop camera if it's speed is too low to prevent jitter
-        if abs(global_var.camera_x - old_camera_x) < 0.8:
-            global_var.camera_x = old_camera_x
+        self.rect.x = self.calc_x - global_var.camera_x
+        self.rect.y = self.calc_y
 
-        camera_delta = global_var.camera_x - old_camera_x
-        self.rect.x -= camera_delta * const.CAMERA_MOVE_STEP
+        return
     
     def try_move(self, dx, dy):
         self.move_axis(dx, 0)
@@ -83,24 +74,30 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = self.check_on_ground()
 
     def move_axis(self, dx, dy):
+        tmp_x = self.rect.x
+        tmp_y = self.rect.y
         if dx != 0:
             self.rect.x += dx
+            self.calc_x += dx
             if self.collide():
                 direction = 1 if dx > 0 else -1
                 while self.collide():
                     self.rect.x -= direction
+                    self.calc_x -= direction
                 self.velocity_x = 0
 
         if dy != 0:
             self.rect.y += dy
+            self.calc_y += dy
             if self.collide():
                 direction = 1 if dy > 0 else -1
                 while self.collide():
                     self.rect.y -= direction
+                    self.calc_y -= direction
                 self.velocity_y = 0
 
     def collide(self):
-        if self.rect.x < 0:
+        if self.calc_x < 0:
             return True
         for platform in real_game.platforms_group:
             if self.rect.colliderect(platform.rect):
@@ -129,7 +126,12 @@ class Player(pygame.sprite.Sprite):
                 self.velocity_x *= self.friction
             elif self.velocity_x < 0:
                 self.velocity_x *= self.friction
-        
+        else:
+            if self.velocity_x > 0:
+                self.velocity_x *= self.air_friction
+            elif self.velocity_x < 0:
+                self.velocity_x *= self.air_friction
+
         if abs(self.velocity_x) < 0.1:
             self.velocity_x = 0
 
@@ -153,6 +155,23 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.velocity_x = min(self.velocity_x + self.accseleration[0], self.max_speed[0])
         
+        #friction
+        if self.velocity_x > 0:
+            self.velocity_x *= self.air_friction
+        elif self.velocity_x < 0:
+            self.velocity_x *= self.air_friction
+
+        if self.velocity_y > 0:
+            self.velocity_y *= self.air_friction
+        elif self.velocity_y < 0:
+            self.velocity_y *= self.air_friction
+        
+        if abs(self.velocity_x) < 0.1:
+            self.velocity_x = 0
+        
+        if abs(self.velocity_y) < 0.1:
+            self.velocity_y = 0
+
         #up and down for edit mode
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] or keys[pygame.K_w]:

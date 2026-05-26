@@ -8,6 +8,7 @@
     "moving_speed": [7, 5],
     "max_speed": [5, 5],
     "friction": 0.725,
+    "air_friction": 0.95,
     "gravity": 0.5,
     "jump_strength": 10
 }

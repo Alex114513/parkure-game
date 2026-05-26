@@ -3,6 +3,7 @@ import const
 import tools
 import json
 import scenes.main_title
+import global_var
 from sprites.player import Player
 from sprites.work.masks import mask
 from pygame.locals import *
@@ -24,6 +25,7 @@ player_name = None
 player_acc = None
 player_max_speed = None
 player_friction = None
+player_air_friction = None
 player_gravity = None
 player_jump_strength = None
 
@@ -71,6 +73,7 @@ def init():
     player_acc = player_config["accseleration"]
     player_max_speed = player_config["max_speed"]
     player_friction = player_config["friction"]
+    player_air_friction = player_config["air_friction"]
     player_gravity = player_config["gravity"]
     player_jump_strength = player_config["jump_strength"]
 
@@ -94,6 +97,7 @@ def init():
     player.accseleration = player_acc
     player.max_speed = player_max_speed
     player.friction = player_friction
+    player.air_friction = player_air_friction
     player.gravity = player_gravity
     player.jump_strength = player_jump_strength
 
@@ -130,7 +134,7 @@ def start(save_name):
     init()
 
     while not done:
-        scenes.main_title.clock.tick(const.FPS)
+        const.CLOCK.tick(const.FPS)
 
         #events
         for event in pygame.event.get():
@@ -141,6 +145,7 @@ def start(save_name):
             if event.type == VIDEORESIZE:
                 #resize window
                 scenes.main_title.screen = pygame.display.set_mode((event.w , event.h) , RESIZABLE)
+                global_var.window_size = (event.w, event.h)
                 tools.log(f"window resized to w:{event.w}h:{event.h}" , const.INFO)
                 const.SCREEN_RESIZE.send(data=(const.SCREEN_RESIZE_CODE, (event.w, event.h)))
                 scenes.main_title.window_size = (event.w, event.h)
