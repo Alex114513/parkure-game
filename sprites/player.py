@@ -1,7 +1,7 @@
 import pygame
 import tools
 import global_var
-import edit_mode_currsor
+from sprites import edit_mode_currsor
 from scenes import  real_game
 import const
 
