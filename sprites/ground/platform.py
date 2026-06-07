@@ -20,5 +20,5 @@ class Platform(pygame.sprite.Sprite):
     
     def update(self):
         #adjust platform position based on camera offset, not cumulative movement
-        self.rect.x = self.world_x - global_var.camera_x * const.CAMERA_MOVE_STEP
+        self.rect.x = self.world_x - global_var.camera_x
         self.rect.y = self.world_y

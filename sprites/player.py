@@ -181,3 +181,7 @@ class Player(pygame.sprite.Sprite):
         
         self.velocity_x = max(min(self.velocity_x, self.max_speed[0]), -self.max_speed[0])
         self.velocity_y = max(min(self.velocity_y, self.max_speed[1]), -self.max_speed[1])
+        global_var.Edit_mode_currsor.update()
+    def init_edit_mode(self):
+        global_var.Edit_mode_currsor = edit_mode_currsor.Edit_mode_cursor(self)
+        

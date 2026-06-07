@@ -114,6 +114,34 @@ def init():
         tools.log(f"platform created at position: {pos} with size: {size}" , const.DEBUG)
         #add new_platform to the appropriate sprite group for platforms
 
+def reload_level():
+    global current_level, unlocked_levels, level_sprites
+    platforms_group.empty()
+    try:
+        with open(f"saves/{Save_name}/level.json", "r") as f:
+            level_data = json.load(f)
+    except Exception as e:
+        tools.log(f"error loading save data for reloading ground: {e}" , const.ERROR)
+        return
+    
+    tools.log(f"level data: {level_data}" , const.DEBUG)
+
+    this_level_data = level_data[str(current_level)]
+
+    #platforms
+    for platform in this_level_data["platforms"]:
+        pos = platform["position"]
+        size = platform["size"]
+        new_platform = Platform(pos[0], pos[1], size[0], size[1])
+        platforms_group.add(new_platform)
+        tools.log(f"platform created at position: {pos} with size: {size}" , const.DEBUG)
+        #add new_platform to the appropriate sprite group for platforms
+    
+    #level
+    current_level = level_data["current_level"]
+    unlocked_levels = level_data["unlocked_levels"]
+    level_sprites = level_data[str(current_level)]["enemies"]
+
 def start(save_name):
     global Save_name
 
@@ -154,16 +182,24 @@ def start(save_name):
                 if event.key == pygame.K_UP or event.key == pygame.K_w:
                     if player.on_ground:
                         player.velocity_y -= player.jump_strength
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1: #left click
+                    if player.edit_mode:
+                        #let currsor place a platform
+                        tools.log(f"placing platform at cursor position: {global_var.Edit_mode_currsor.rect.topleft}" , const.DEBUG)
+                        global_var.Edit_mode_currsor.place_platform()
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_0:
                     if const.debug_mode:
                         if player.edit_mode:
-                            tools.log(f"Eddit mode disabled", const.INFO)
+                            tools.log(f"Edit mode disabled", const.INFO)
                             player.edit_mode = False
+                            global_var.Edit_mode_currsor = None
                         else:    
-                            tools.log(f"Eddit mode enabled", const.INFO)
+                            tools.log(f"Edit mode enabled", const.INFO)
                             player.edit_mode = True
+                            player.init_edit_mode() #reset player physics attributes to default values for edit mode
                     else:
                         tools.log(f"Could not enable edit mode, because debug mode is {const.debug_mode}", const.INFO)
 
@@ -175,4 +211,6 @@ def start(save_name):
         player_group.update()
         platforms_group.update()
         player_group.draw(scenes.main_title.screen)
+        if global_var.Edit_mode_currsor:
+            scenes.main_title.screen.blit(global_var.Edit_mode_currsor.image, global_var.Edit_mode_currsor.rect)
         pygame.display.update()
