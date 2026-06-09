@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import const
 from pathlib import Path
 import pygame
+from pygame import math
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -68,8 +69,8 @@ def new_save(name):
                 {"type": "enemy2", "position": [200, 200]}
             ],
             "platforms": [
-                {"position": [0, 150], "size": [100, 20]},
-                {"position": [200, 300], "size": [150, 20]}
+                {"position": [0, 150], "size": [100, 20], "rotation": 0},
+                {"position": [200, 300], "size": [150, 20], "rotation": 0}
             ]
         }
 
@@ -95,3 +96,18 @@ def Check_time(max):
 
         return wrapper
     return decorator
+
+def axis_aligned_bbox_from_rect(rect, angle):
+    cx, cy = rect.center
+    w, h = rect.size
+    corners = [
+        math.Vector2(-w/2, -h/2),
+        math.Vector2( w/2, -h/2),
+        math.Vector2( w/2,  h/2),
+        math.Vector2(-w/2,  h/2),
+    ]
+    rotated = [math.Vector2(cx, cy) + p.rotate(angle) for p in corners]
+    xs = [p.x for p in rotated]; ys = [p.y for p in rotated]
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+    return pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)#, rotated  # 返回包围盒和四个顶点

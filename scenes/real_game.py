@@ -109,9 +109,10 @@ def init():
     for platform in this_level_data["platforms"]:
         pos = platform["position"]
         size = platform["size"]
-        new_platform = Platform(pos[0], pos[1], size[0], size[1])
+        rotation = platform["rotation"]
+        new_platform = Platform(pos[0], pos[1], size[0], size[1], rotation)
         platforms_group.add(new_platform)
-        tools.log(f"platform created at position: {pos} with size: {size}" , const.DEBUG)
+        tools.log(f"platform created at position: {pos} with size: {size} and rotation: {rotation}" , const.DEBUG)
         #add new_platform to the appropriate sprite group for platforms
 
 def reload_level():
@@ -132,9 +133,10 @@ def reload_level():
     for platform in this_level_data["platforms"]:
         pos = platform["position"]
         size = platform["size"]
-        new_platform = Platform(pos[0], pos[1], size[0], size[1])
+        rotation = platform["rotation"]
+        new_platform = Platform(pos[0], pos[1], size[0], size[1], rotation)
         platforms_group.add(new_platform)
-        tools.log(f"platform created at position: {pos} with size: {size}" , const.DEBUG)
+        tools.log(f"platform created at position: {pos} with size: {size} and rotation: {rotation}" , const.DEBUG)
         #add new_platform to the appropriate sprite group for platforms
     
     #level
@@ -179,15 +181,62 @@ def start(save_name):
                 scenes.main_title.window_size = (event.w, event.h)
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP or event.key == pygame.K_w:
+                if event.key == pygame.K_w:
                     if player.on_ground:
                         player.velocity_y -= player.jump_strength
+                
+                #change platform size in edit mode
+                if global_var.Edit_mode_currsor:
+                    cursor = global_var.Edit_mode_currsor
+                    if event.key == pygame.K_LEFT:
+                        cursor.target_platform_size = (
+                            max(10, cursor.target_platform_size[0] - 10), 
+                            cursor.target_platform_size[1]
+                        )
+                        cursor.image = pygame.transform.scale(
+                            cursor.image, 
+                            cursor.target_platform_size
+                        )
+                    if event.key == pygame.K_RIGHT:
+                        cursor.target_platform_size = (
+                            max(10, cursor.target_platform_size[0] + 10), 
+                            cursor.target_platform_size[1]
+                        )
+                        cursor.image = pygame.transform.scale(
+                            cursor.image, 
+                            cursor.target_platform_size
+                        )
+
+                    if event.key == pygame.K_UP:
+                        cursor.target_platform_size = (
+                            cursor.target_platform_size[0],
+                            max(10, cursor.target_platform_size[1] - 10)
+                        )
+                        cursor._refresh_image()
+                    if event.key == pygame.K_DOWN:
+                        cursor.target_platform_size = (
+                            cursor.target_platform_size[0],
+                            max(10, cursor.target_platform_size[1] + 10)
+                        )
+                        cursor._refresh_image()
+                    if event.key == pygame.K_r:
+                        cursor.target_platform_rotation = (cursor.target_platform_rotation + 15) % 360
+                        cursor._refresh_image()
+                    if event.key == pygame.K_e:
+                        cursor.target_platform_rotation = (cursor.target_platform_rotation - 15) % 360
+                        cursor._refresh_image()
+
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1: #left click
                     if player.edit_mode:
                         #let currsor place a platform
                         tools.log(f"placing platform at cursor position: {global_var.Edit_mode_currsor.rect.topleft}" , const.DEBUG)
                         global_var.Edit_mode_currsor.place_platform()
+                if event.button == 3: #right click
+                    if player.edit_mode:
+                        #let currsor remove a platform
+                        tools.log(f"trying to remove platform at cursor position: {global_var.Edit_mode_currsor.rect.topleft}" , const.DEBUG)
+                        global_var.Edit_mode_currsor.remove_platform()
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_0:

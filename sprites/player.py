@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.calc_x = x
         self.calc_y = y
@@ -101,7 +102,9 @@ class Player(pygame.sprite.Sprite):
             return True
         for platform in real_game.platforms_group:
             if self.rect.colliderect(platform.rect):
-                return True
+                offset = (platform.rect.left - self.rect.left, platform.rect.top - self.rect.top)
+                if self.mask.overlap(platform.mask, offset):
+                    return True
         return False
 
     def check_on_ground(self):
@@ -109,15 +112,17 @@ class Player(pygame.sprite.Sprite):
         test_rect.y += 1
         for platform in real_game.platforms_group:
             if test_rect.colliderect(platform.rect):
-                return True
+                offset = (platform.rect.left - test_rect.left, platform.rect.top - test_rect.top)
+                if self.mask.overlap(platform.mask, offset):
+                    return True
         return False
     
     def normal_phisics_update(self):
         #velocity
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if keys[pygame.K_a]:
             self.velocity_x = max(self.velocity_x - self.accseleration[0], -self.max_speed[0])
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if keys[pygame.K_d]:
             self.velocity_x = min(self.velocity_x + self.accseleration[0], self.max_speed[0])
 
         #friction
@@ -150,9 +155,9 @@ class Player(pygame.sprite.Sprite):
     def edit_stuff(self):
         #velocity
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if keys[pygame.K_a]:
             self.velocity_x = max(self.velocity_x - self.accseleration[0], -self.max_speed[0])
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if keys[pygame.K_d]:
             self.velocity_x = min(self.velocity_x + self.accseleration[0], self.max_speed[0])
         
         #friction
@@ -174,9 +179,9 @@ class Player(pygame.sprite.Sprite):
 
         #up and down for edit mode
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+        if keys[pygame.K_w]:
             self.velocity_y = max(self.velocity_y - self.accseleration[1], -self.max_speed[1])
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        if keys[pygame.K_s]:
             self.velocity_y = min(self.velocity_y + self.accseleration[1], self.max_speed[1])
         
         self.velocity_x = max(min(self.velocity_x, self.max_speed[0]), -self.max_speed[0])
