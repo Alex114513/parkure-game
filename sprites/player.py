@@ -49,7 +49,8 @@ class Player(pygame.sprite.Sprite):
             self.normal_phisics_update()
 
         #update player position based on velocity
-        self.try_move(self.velocity_x, self.velocity_y)
+        self.try_move(self.velocity_x, 0)
+        self.try_move(0, self.velocity_y)
 
         #camera stuff
         left_limit = global_var.window_size[0] * const.CAMERA_MOVE_THRESHOLD
@@ -82,10 +83,30 @@ class Player(pygame.sprite.Sprite):
             self.calc_x += dx
             if self.collide():
                 direction = 1 if dx > 0 else -1
-                while self.collide():
-                    self.rect.x -= direction
-                    self.calc_x -= direction
-                self.velocity_x = 0
+                for i in range(25):  # Limit the number of iterations to prevent infinite loops
+                    self.rect.y -= 1
+                    self.calc_y -= 1
+                    if not self.collide():
+                        break
+                
+                if self.collide():
+                    self.rect.y = tmp_y  # Reset to original position if still colliding
+                    self.calc_y = tmp_y
+                    for i in range(25):  # Limit the number of iterations to prevent infinite loops
+                        self.rect.y += 1
+                        self.calc_y += 1
+                        if not self.collide():
+                            break
+                    if self.collide():
+                        self.rect.y = tmp_y  # Reset to original position if still colliding
+                        self.calc_y = tmp_y
+                        self.velocity_x = 0
+
+                if self.collide():
+                    while self.collide():
+                        self.rect.x -= direction
+                        self.calc_x -= direction
+                    self.velocity_x = 0
 
         if dy != 0:
             self.rect.y += dy

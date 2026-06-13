@@ -262,4 +262,17 @@ def start(save_name):
         player_group.draw(scenes.main_title.screen)
         if global_var.Edit_mode_currsor:
             scenes.main_title.screen.blit(global_var.Edit_mode_currsor.image, global_var.Edit_mode_currsor.rect)
+        
+        if const.debug_mode:
+            #draw player hitbox
+            pygame.draw.rect(scenes.main_title.screen, const.RED, player.rect, 1)
+            #draw player velocity vector
+            pygame.draw.line(
+                scenes.main_title.screen, 
+                const.GREEN, 
+                (player.rect.centerx, player.rect.centery), 
+                (player.rect.centerx + player.velocity_x * 10, player.rect.centery + player.velocity_y * 10), 
+                2
+            )
+
         pygame.display.update()
