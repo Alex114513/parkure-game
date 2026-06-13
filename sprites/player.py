@@ -78,12 +78,14 @@ class Player(pygame.sprite.Sprite):
     def move_axis(self, dx, dy):
         tmp_x = self.rect.x
         tmp_y = self.rect.y
+        if self.collide():
+            tools.log(f"player may be stuck in a platform at ({self.rect.x}, {self.rect.y})", const.WARNING)
         if dx != 0:
             self.rect.x += dx
             self.calc_x += dx
             if self.collide():
                 direction = 1 if dx > 0 else -1
-                for i in range(25):  # Limit the number of iterations to prevent infinite loops
+                for i in range(5):  # Limit the number of iterations to prevent infinite loops
                     self.rect.y -= 1
                     self.calc_y -= 1
                     if not self.collide():
@@ -92,11 +94,6 @@ class Player(pygame.sprite.Sprite):
                 if self.collide():
                     self.rect.y = tmp_y  # Reset to original position if still colliding
                     self.calc_y = tmp_y
-                    for i in range(25):  # Limit the number of iterations to prevent infinite loops
-                        self.rect.y += 1
-                        self.calc_y += 1
-                        if not self.collide():
-                            break
                     if self.collide():
                         self.rect.y = tmp_y  # Reset to original position if still colliding
                         self.calc_y = tmp_y
@@ -109,6 +106,21 @@ class Player(pygame.sprite.Sprite):
                     self.velocity_x = 0
 
         if dy != 0:
+            if dy > 0:  # Moving down
+                flag = False
+                #smooth down-slope
+                for i in range(10):  # Limit the number of iterations to prevent infinite loops
+                    self.rect.y += 1
+                    self.calc_y += 1
+                    if self.collide():
+                        self.rect.y -= 1
+                        self.calc_y -= 1
+                        flag = True
+                        break
+                if flag == False:
+                    self.rect.y = tmp_y  # Reset to original position if no collision detected
+                    self.calc_y = tmp_y
+
             self.rect.y += dy
             self.calc_y += dy
             if self.collide():
