@@ -24,3 +24,5 @@ target/
 *.pyc
 
 generate_images.py
+
+tests/

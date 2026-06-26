@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity_x = 0
         self.velocity_y = 0
         self.on_ground = False
+        self._ground_buffer = 0
         self.accseleration = [0, 0]
         self.max_speed = [5, 10]
         self.friction = 0.1
@@ -71,56 +72,59 @@ class Player(pygame.sprite.Sprite):
         return
     
     def try_move(self, dx, dy):
+        if self.collide():
+            tools.log(f"player may be stuck in a platform at ({self.rect.x}, {self.rect.y})", const.WARNING)
         self.move_axis(dx, 0)
         self.move_axis(0, dy)
-        self.on_ground = self.check_on_ground()
+        self.update_ground_state()
 
     def move_axis(self, dx, dy):
         tmp_x = self.rect.x
         tmp_y = self.rect.y
-        if self.collide():
-            tools.log(f"player may be stuck in a platform at ({self.rect.x}, {self.rect.y})", const.WARNING)
         if dx != 0:
             self.rect.x += dx
             self.calc_x += dx
             if self.collide():
                 direction = 1 if dx > 0 else -1
-                for i in range(5):  # Limit the number of iterations to prevent infinite loops
+                flag = False
+                for i in range(10):  # Limit the number of iterations to prevent infinite loops
                     self.rect.y -= 1
                     self.calc_y -= 1
+                    tools.log(f"Resovling smooth up-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
                     if not self.collide():
-                        break
-                
-                if self.collide():
-                    self.rect.y = tmp_y  # Reset to original position if still colliding
-                    self.calc_y = tmp_y
-                    if self.collide():
-                        self.rect.y = tmp_y  # Reset to original position if still colliding
-                        self.calc_y = tmp_y
-                        self.velocity_x = 0
-
-                if self.collide():
-                    while self.collide():
-                        self.rect.x -= direction
-                        self.calc_x -= direction
-                    self.velocity_x = 0
-
-        if dy != 0:
-            if dy > 0:  # Moving down
-                flag = False
-                #smooth down-slope
-                for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                    self.rect.y += 1
-                    self.calc_y += 1
-                    if self.collide():
-                        self.rect.y -= 1
-                        self.calc_y -= 1
+                        tools.log(f"Resovled smooth up-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
                         flag = True
                         break
+                
                 if flag == False:
-                    self.rect.y = tmp_y  # Reset to original position if no collision detected
+                    self.rect.y = tmp_y
                     self.calc_y = tmp_y
+                
+            flag2 = False
+            for i in range(10):  # Limit the number of iterations to prevent infinite loops
+                self.rect.y += 1
+                self.calc_y += 1
+                tools.log(f"Resolving smooth down-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                if self.collide():
+                    self.rect.y -= 1
+                    self.calc_y -= 1
+                    self.velocity_y = 0
+                    tools.log(f"Resovled smooth down-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                    flag2 = True
+                    break
+            if flag2 == False:
+                tools.log("Faild to resolve smooth down-slope", const.DEBUG)
+                self.rect.y = tmp_y  # Reset to original position if no collision detected
+                self.calc_y = tmp_y
+            
+            if self.collide():
+                tools.log("Faild to resovle smooth up-slope", const.DEBUG)
+                while self.collide():
+                    self.rect.x -= direction
+                    self.calc_x -= direction
+                self.velocity_x = 0
 
+        if dy != 0:
             self.rect.y += dy
             self.calc_y += dy
             if self.collide():
@@ -140,14 +144,28 @@ class Player(pygame.sprite.Sprite):
                     return True
         return False
 
+    def update_ground_state(self):
+        if self.check_on_ground():
+            self._ground_buffer = 3
+        elif self._ground_buffer > 0:
+            self._ground_buffer -= 1
+        self.on_ground = self._ground_buffer > 0
+
     def check_on_ground(self):
-        test_rect = self.rect.copy()
-        test_rect.y += 1
-        for platform in real_game.platforms_group:
-            if test_rect.colliderect(platform.rect):
-                offset = (platform.rect.left - test_rect.left, platform.rect.top - test_rect.top)
-                if self.mask.overlap(platform.mask, offset):
-                    return True
+        probe_y = self.rect.bottom - 2
+        probe_xs = [self.rect.left + 1, self.rect.centerx, self.rect.right - 1]
+
+        for probe_x in probe_xs:
+            for platform in real_game.platforms_group:
+                if not platform.rect.collidepoint(probe_x, probe_y):
+                    continue
+
+                local_x = int(probe_x - platform.rect.left)
+                local_y = int(probe_y - platform.rect.top)
+                if 0 <= local_x < platform.mask.get_size()[0] and 0 <= local_y < platform.mask.get_size()[1]:
+                    if platform.mask.get_at((local_x, local_y)):
+                        return True
+
         return False
     
     def normal_phisics_update(self):

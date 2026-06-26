@@ -1,6 +1,8 @@
 import blinker
 import pygame
 
+pygame.init()
+
 debug_mode = True
 window_size = (800 , 800)
 
@@ -42,3 +44,6 @@ CAMERA_MOVE_STEP = 0.75
 PLAYER_COLIDE_STEP = 5
 
 CLOCK = pygame.time.Clock()
+
+#fonts
+DEAFAULT_FONT  = pygame.font.Font(None, 20)

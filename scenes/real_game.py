@@ -264,8 +264,32 @@ def start(save_name):
             scenes.main_title.screen.blit(global_var.Edit_mode_currsor.image, global_var.Edit_mode_currsor.rect)
         
         if const.debug_mode:
-            #draw player hitbox
-            pygame.draw.rect(scenes.main_title.screen, const.RED, player.rect, 1)
+            #draw player hitbox and on_ground and colision points
+            if player.on_ground:
+                pygame.draw.rect(scenes.main_title.screen, const.RED, player.rect, 1)
+            else:
+                pygame.draw.rect(scenes.main_title.screen, const.BLUE, player.rect, 1)
+            pygame.draw.circle(
+                surface = scenes.main_title.screen, 
+                color = const.RED, 
+                center = (player.rect.left + 1, player.rect.bottom - 2), 
+                radius = 5, 
+                width = 2
+            )
+            pygame.draw.circle(
+                surface = scenes.main_title.screen, 
+                color = const.RED, 
+                center = (player.rect.centerx, player.rect.bottom - 2), 
+                radius = 5, 
+                width = 2
+            )
+            pygame.draw.circle(
+                surface = scenes.main_title.screen, 
+                color = const.RED,
+                center = (player.rect.right - 1, player.rect.bottom - 2) , 
+                radius = 5, 
+                width = 2
+            )
             #draw player velocity vector
             pygame.draw.line(
                 scenes.main_title.screen, 
@@ -274,5 +298,20 @@ def start(save_name):
                 (player.rect.centerx + player.velocity_x * 10, player.rect.centery + player.velocity_y * 10), 
                 2
             )
+            #draw player position
+            text = f"player_position: (x: {player.calc_x} y: {player.calc_y})"
+            text_surface = const.DEAFAULT_FONT.render(text, True, const.BLACK)
+            text_rect = text_surface.get_rect(center = (100, 590))
+
+            scenes.main_title.screen.blit(text_surface, text_rect)
+
+            # draw collision boxes for all platforms
+            for platform in platforms_group:
+                pygame.draw.rect(
+                    scenes.main_title.screen,
+                    const.GREEN,
+                    platform.rect,
+                    1
+                )
 
         pygame.display.update()
