@@ -298,8 +298,8 @@ def start(save_name):
                 (player.rect.centerx + player.velocity_x * 10, player.rect.centery + player.velocity_y * 10), 
                 2
             )
-            #draw player position
-            text = f"player_position: (x: {player.calc_x} y: {player.calc_y})"
+            #draw player calc position
+            text = f"player_calc_position: (x: {player.calc_x} y: {player.calc_y})"
             text_surface = const.DEAFAULT_FONT.render(text, True, const.BLACK)
             text_rect = text_surface.get_rect(center = (100, 590))
 
@@ -313,5 +313,45 @@ def start(save_name):
                     platform.rect,
                     1
                 )
+            #draw player rect position
+            text = f"player_rect_position: (x: {player.rect.x} y: {player.rect.y})"
+            text_surface = const.DEAFAULT_FONT.render(text, True, const.BLACK)
+            text_rect = text_surface.get_rect(center = (100, 600))
+
+            scenes.main_title.screen.blit(text_surface, text_rect)
+
+            #draw camera move threshold lines
+            left_limit = global_var.window_size[0] * const.CAMERA_MOVE_THRESHOLD
+            right_limit = global_var.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)
+            up_limit = global_var.window_size[1] * const.CAMERA_MOVE_THRESHOLD
+            down_limit = global_var.window_size[1] * (1 - const.CAMERA_MOVE_THRESHOLD)
+            pygame.draw.line(
+                scenes.main_title.screen,
+                const.GRAY,
+                (left_limit, 0),
+                (left_limit, global_var.window_size[1]),
+                1
+            )
+            pygame.draw.line(
+                scenes.main_title.screen,
+                const.GRAY,
+                (right_limit, 0),
+                (right_limit, global_var.window_size[1]),
+                1
+            )
+            pygame.draw.line(
+                scenes.main_title.screen,
+                const.GRAY,
+                (0, up_limit),
+                (global_var.window_size[0], up_limit),
+                1
+            )
+            pygame.draw.line(
+                scenes.main_title.screen,
+                const.GRAY,
+                (0, down_limit),
+                (global_var.window_size[0], down_limit),
+                1
+            )
 
         pygame.display.update()

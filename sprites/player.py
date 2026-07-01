@@ -56,18 +56,30 @@ class Player(pygame.sprite.Sprite):
         #camera stuff
         left_limit = global_var.window_size[0] * const.CAMERA_MOVE_THRESHOLD
         right_limit = global_var.window_size[0] * (1 - const.CAMERA_MOVE_THRESHOLD)
+        up_limit = global_var.window_size[1] * const.CAMERA_MOVE_THRESHOLD
+        down_limit = global_var.window_size[1] * (1 - const.CAMERA_MOVE_THRESHOLD)
         screen_x = self.calc_x - global_var.camera_x
+        screen_y = self.calc_y - global_var.camera_y
 
         if screen_x < left_limit:
             global_var.camera_x -= left_limit - screen_x
         elif screen_x > right_limit:
             global_var.camera_x += screen_x - right_limit
 
+        if screen_y < up_limit:
+            global_var.camera_y -= up_limit - screen_y
+        elif screen_y > down_limit:
+            global_var.camera_y += screen_y - down_limit
+
         if global_var.camera_x < const.LEAST_CAMERA_X:
             global_var.camera_x = const.LEAST_CAMERA_X
-        
+        if global_var.camera_y < const.LEAST_CAMERA_Y:
+            global_var.camera_y = const.LEAST_CAMERA_Y
+
         self.rect.x = self.calc_x - global_var.camera_x
-        self.rect.y = self.calc_y
+        self.rect.y = self.calc_y - global_var.camera_y
+        self.calc_x = self.rect.x + global_var.camera_x
+        self.calc_y = self.rect.y + global_var.camera_y
 
         return
     
@@ -100,22 +112,22 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y = tmp_y
                     self.calc_y = tmp_y
                 
-            flag2 = False
-            for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                self.rect.y += 1
-                self.calc_y += 1
-                tools.log(f"Resolving smooth down-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                if self.collide():
-                    self.rect.y -= 1
-                    self.calc_y -= 1
-                    self.velocity_y = 0
-                    tools.log(f"Resovled smooth down-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                    flag2 = True
-                    break
-            if flag2 == False:
-                tools.log("Faild to resolve smooth down-slope", const.DEBUG)
-                self.rect.y = tmp_y  # Reset to original position if no collision detected
-                self.calc_y = tmp_y
+                flag2 = False
+                for i in range(10):  # Limit the number of iterations to prevent infinite loops
+                    self.rect.y += 1
+                    self.calc_y += 1
+                    tools.log(f"Resolving smooth down-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                    if self.collide():
+                        self.rect.y -= 1
+                        self.calc_y -= 1
+                        self.velocity_y = 0
+                        tools.log(f"Resovled smooth down-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                        flag2 = True
+                        break
+                if flag2 == False:
+                    tools.log("Faild to resolve smooth down-slope", const.DEBUG)
+                    self.rect.y = tmp_y  # Reset to original position if no collision detected
+                    self.calc_y = tmp_y
             
             if self.collide():
                 tools.log("Faild to resovle smooth up-slope", const.DEBUG)
