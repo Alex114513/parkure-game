@@ -14,6 +14,9 @@ buttons_group = pygame.sprite.Group()
 
 done = False
 
+#func var
+should_jump_scene = None
+
 #window
 pygame.init()
 screen = pygame.display.set_mode(const.window_size , RESIZABLE)
@@ -23,8 +26,12 @@ pygame.display.set_caption("parkure")
 clock = pygame.time.Clock()
 
 def start():
-    global window_size , done , screen
+    global window_size , done , screen, should_jump_scene
     
+    should_jump_scene = None
+    done = False
+    pygame.init()
+
     #build buttons
     start_button = Button("Start", const.TARGET_GAME)
 
@@ -69,11 +76,15 @@ def start():
     
     tools.log("main title loop ended" , const.DEBUG)
 
+    if should_jump_scene == "game_prep":
+        tools.log("jumping to game prep scene" , const.INFO)
+        scenes.game_prep.start()
+
     pygame.quit()
 
 def swich():
-    global done, buttons_group, masks_group
+    global done, buttons_group, masks_group, should_jump_scene
+    tools.log("switching to game prep scene" , const.INFO)
     done = True
-    buttons_group.empty()
-    masks_group.empty()
-    scenes.game_prep.start()
+    should_jump_scene = "game_prep"
+    

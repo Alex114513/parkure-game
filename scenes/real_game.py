@@ -37,7 +37,10 @@ level_sprites = None
 #global groups
 platforms_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
+done = False
 
+#funcnial variables
+should_jump_to_main_title = False
 
 @tools.Check_time(10)
 def init():
@@ -51,7 +54,7 @@ def init():
             player_data = json.load(f)
         with open(f"{save_path}/level.json", "r") as f:
             level_data = json.load(f)
-        with open(f"configs/players/{player_data['name']}..json", "r") as f:
+        with open(f"configs/players/player1.json", "r") as f:
             player_config = json.load(f)
         tools.log("save data loaded successfully" , const.INFO)
     except Exception as e:
@@ -145,11 +148,12 @@ def reload_level():
     level_sprites = level_data[str(current_level)]["enemies"]
 
 def start(save_name):
-    global Save_name
+    global Save_name, done
 
     Save_name = save_name
     tools.log("real game scene start" , const.INFO)
     done = False
+    paused = False
 
     #groups and sprites
     init_start_mask = mask.Mask(const.BLACK)
@@ -165,7 +169,8 @@ def start(save_name):
 
     while not done:
         const.CLOCK.tick(const.FPS)
-
+        if paused:
+            continue
         #events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -251,6 +256,24 @@ def start(save_name):
                             player.init_edit_mode() #reset player physics attributes to default values for edit mode
                     else:
                         tools.log(f"Could not enable edit mode, because debug mode is {const.debug_mode}", const.INFO)
+                #pause menu
+                if event.key == pygame.K_ESCAPE:
+                    tools.log(f"pause menu opened", const.INFO)
+                    from scenes.pause_menu import start as pause_menu_start
+                    paused = True
+                    should_exit = pause_menu_start(Save_name)
+                    paused = False
+                    tools.log(f"pause menu closed", const.INFO)
+                    if should_exit == 1:
+                        done = True
+                        tools.log("game exit requested from pause menu", const.INFO)
+                    elif should_exit == 3:
+                        #reload level data after pause menu is closed
+                        reload_level()
+                    else:
+                        tools.log("returning to main menu from pause menu", const.INFO)
+                        should_jump_to_main_title = True
+                        done = True
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
@@ -355,3 +378,7 @@ def start(save_name):
             )
 
         pygame.display.update()
+    
+    if should_jump_to_main_title:
+        tools.log("jumping to main title scene from real game scene", const.INFO)
+        scenes.main_title.start()

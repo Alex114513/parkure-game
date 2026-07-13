@@ -8,6 +8,9 @@ from pygame.locals import *
 
 buttons_group = pygame.sprite.Group()
 
+#func var
+should_jump_scene = None
+
 def start():
     tools.log("game scene start" , const.INFO)
     done = False
@@ -40,12 +43,12 @@ def start():
             if event.type == const.SWITCH_TO_NEW_SAVE_EVENT_CODE:
                 tools.log("switching to new save scene" , const.INFO)
                 done = True
-                swich(const.TARGET_NEW_SAVE)
+                should_jump_scene = "new_save"
 
             if event.type == const.SWITCH_TO_LOAD_SAVE_EVENT_CODE:
                 tools.log("switching to load save scene" , const.INFO)
                 done = True
-                swich(const.TARGET_LOAD_SAVE)
+                should_jump_scene = "load_save"
 
             if event.type == VIDEORESIZE:
                 #resize window
@@ -70,8 +73,13 @@ def start():
 
         #call sprites update
         scenes.main_title.masks_group.update()
+    
+    if should_jump_scene == "new_save":
+        switch("new_save")
+    if should_jump_scene == "load_save":
+        switch("load_save")
 
-def swich(to):
+def switch(to):
     global done, buttons_group, masks_group
     done = True
     tools.log(f"switching to {to}" , const.INFO)
@@ -79,7 +87,9 @@ def swich(to):
     scenes.main_title.masks_group.empty()
     if to == const.TARGET_NEW_SAVE:
         import scenes.new_save as new_save
+        tools.log("switching to new save scene" , const.INFO)
         new_save.start()
-    #if to == const.TARGET_LOAD_SAVE:
-    #    import scenes.load_save as load_save
-    #    load_save.start()
+    if to == const.TARGET_LOAD_SAVE:
+        import scenes.load_save as load_save
+        tools.log("switching to load save scene" , const.INFO)
+        load_save.start()

@@ -1,17 +1,20 @@
-import pygame
+﻿import pygame
 import const
 import tools
 import scenes.main_title
 from sprites.work.masks import mask
 from sprites.buttons import button
+from sprites.buttons.input_tab import InputTab
 from scenes import real_game
 from pygame.locals import *
 
 buttons_group = pygame.sprite.Group()
+done = False
 
 def start():
-    tools.log("new save scene start" , const.INFO)
+    global done, buttons_group
     done = False
+    tools.log("new save scene start" , const.INFO)
 
     #start mask
     start_mask = mask.Mask(const.BLACK)
@@ -20,12 +23,20 @@ def start():
     #fade
     start_mask.fade(1)
 
+    #saving
+    save_name = None  # Initialize save_name to None
+
     #buttons
     create_button = button.Button("create", const.REAL_GAME)
-    buttons_group.add(create_button)
+    input_tab = InputTab("", const.DEAFAULT_FONT, const.WHITE)
+    ui_group = pygame.sprite.Group(create_button, input_tab)
 
     #message connection
     const.SCREEN_RESIZE.connect(create_button.messege)
+    const.SCREEN_RESIZE.connect(input_tab.messege)
+
+    #func var
+    should_jump_to_real_game = False
 
     while not done:
         scenes.main_title.clock.tick(const.FPS)
@@ -35,10 +46,11 @@ def start():
                 done = True
 
             if event.type == const.SWITCH_TO_REAL_GAME_EVENT_CODE:
-                tools.log("switching to real game scene" , const.INFO)
-                tools.new_save("player1")  # Replace "player1" with the actual player name
+                save_name = input_tab.text
+                tools.log(f"switching to real game scene with save name: {save_name}" , const.INFO)
+                tools.new_save(save_name)  # Use the entered save name
                 done = True
-                switch(const.REAL_GAME)
+                should_jump_to_real_game = True
             
             if event.type == VIDEORESIZE:
                 #resize window
@@ -51,20 +63,33 @@ def start():
                 if create_button.rect.collidepoint(event.pos):
                     tools.log("create button clicked.start real game scene" , const.INFO)
                     create_button.clicked()
+            
+            input_tab.handle_event(event)
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
-        buttons_group.update()
-        buttons_group.draw(scenes.main_title.screen)
+        ui_group.update()
+        ui_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.update()
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
+
+        #get the text surface and rect from the input tab
+        text_surface, text_rect = input_tab._render_text()
+        #blit the text surface onto the screen
+        scenes.main_title.screen.blit(text_surface, text_rect)
+
         pygame.display.update()
 
-def switch(scene):
+    if should_jump_to_real_game:
+        tools.log("jumping to real game scene from new save scene" , const.INFO)
+        switch(const.REAL_GAME, save_name)  # Pass the save name to the switch function
+
+
+def switch(scene, save_name):
     global done, buttons_group, masks_group
     done = True
 
     buttons_group.empty()
     scenes.main_title.masks_group.empty()
     if scene == const.REAL_GAME:
-        real_game.start("player1")  # Replace "player1" with the actual player name
+        real_game.start(save_name)  # Use the provided save name
