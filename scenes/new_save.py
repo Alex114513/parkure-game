@@ -9,6 +9,7 @@ from scenes import real_game
 from pygame.locals import *
 
 buttons_group = pygame.sprite.Group()
+ui_group = None
 done = False
 
 def start():

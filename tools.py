@@ -111,3 +111,33 @@ def axis_aligned_bbox_from_rect(rect, angle):
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
     return pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)#, rotated  # 返回包围盒和四个顶点
+
+def clear_scene_transition_timers():
+    """Clear pending scene-switch timers and queued events so stale transitions do not fire in the next scene."""
+    for event_code in (
+        const.SWITCH_TO_GAME_EVENT_CODE,
+        const.SWITCH_TO_NEW_SAVE_EVENT_CODE,
+        const.SWITCH_TO_LOAD_SAVE_EVENT_CODE,
+        const.SWITCH_TO_REAL_GAME_EVENT_CODE,
+    ):
+        pygame.time.set_timer(event_code, 0)
+
+    pygame.event.clear()
+    log("TOOLS: cleared scene transition timers and queued events", const.INFO)
+
+
+def kill_buttons():
+    from scenes import main_title
+    import scenes.game_prep as game_prep
+    import scenes.new_save as new_save
+    for button in main_title.buttons_group:
+        button.kill()
+    for button in game_prep.buttons_group:
+        button.kill()
+    for button in new_save.buttons_group:
+        button.kill()
+    if new_save.ui_group != None:
+        for ui in new_save.ui_group:
+            ui.kill()
+
+    log("TOOLS: deleted all buttons", const.INFO)

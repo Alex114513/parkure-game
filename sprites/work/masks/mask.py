@@ -1,4 +1,5 @@
 import pygame
+import tools
 import scenes.main_title as main_title
 
 class Mask(pygame.sprite.Sprite):
@@ -25,6 +26,11 @@ class Mask(pygame.sprite.Sprite):
                     self.fading = False
                     if self.target_alpha == 255:
                         self.kill()
+                    
+                    if abs(self.target_alpha - 250)<2:
+                        #kill all buttons just before swithing scene
+                        tools.kill_buttons()
+
             elif self.alpha > self.target_alpha:
                 self.alpha -= self.speed
                 if self.alpha <= self.target_alpha:

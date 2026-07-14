@@ -28,6 +28,7 @@ clock = pygame.time.Clock()
 def start():
     global window_size , done , screen, should_jump_scene
     
+    tools.clear_scene_transition_timers()
     should_jump_scene = None
     done = False
     pygame.init()

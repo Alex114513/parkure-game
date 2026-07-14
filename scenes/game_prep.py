@@ -12,6 +12,8 @@ buttons_group = pygame.sprite.Group()
 should_jump_scene = None
 
 def start():
+    global should_jump_scene
+
     tools.log("game scene start" , const.INFO)
     done = False
 

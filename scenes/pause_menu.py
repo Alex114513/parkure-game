@@ -33,6 +33,7 @@ def start(save_name):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if save_and_exit_button.rect.collidepoint(event.pos):
                     save_and_exit_button.clicked()
+                    tools.new_save(save_name)
                     running = False
                     return 2
 

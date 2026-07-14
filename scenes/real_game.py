@@ -148,12 +148,13 @@ def reload_level():
     level_sprites = level_data[str(current_level)]["enemies"]
 
 def start(save_name):
-    global Save_name, done
+    global Save_name, done, should_jump_to_main_title
 
     Save_name = save_name
     tools.log("real game scene start" , const.INFO)
     done = False
     paused = False
+    should_jump_to_main_title = False
 
     #groups and sprites
     init_start_mask = mask.Mask(const.BLACK)
@@ -381,4 +382,6 @@ def start(save_name):
     
     if should_jump_to_main_title:
         tools.log("jumping to main title scene from real game scene", const.INFO)
+        tools.clear_scene_transition_timers()
+        tools.kill_buttons()
         scenes.main_title.start()

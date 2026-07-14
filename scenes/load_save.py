@@ -21,6 +21,9 @@ running = True
 
 def start():
     global running, save_names
+
+    running = True
+
     tools.log("LOAD_SAVE: load save scene start" , const.INFO)
     init()
     tools.log(f"LOAD_SAVE: available saves: {save_names}" , const.INFO)
