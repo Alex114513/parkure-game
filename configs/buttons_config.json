@@ -28,5 +28,10 @@
         "path": "pict/buttons/input_tab.png",
         "size": [256, 128],
         "position": [200, 400]
+    },
+    "return": {
+        "path": "pict/buttons/return.png",
+        "size": [256, 128],
+        "position": [200, 600]
     }
 }

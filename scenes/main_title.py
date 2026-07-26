@@ -1,5 +1,6 @@
 import pygame
 import const
+import global_var
 from pygame.locals import *
 import tools
 from sprites.buttons.button import Button
@@ -28,6 +29,7 @@ clock = pygame.time.Clock()
 def start():
     global window_size , done , screen, should_jump_scene
     
+    tools.reset_exit_request()
     tools.clear_scene_transition_timers()
     should_jump_scene = None
     done = False
@@ -47,17 +49,20 @@ def start():
         clock.tick(const.FPS)
 
         #events
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        if any(event.type == QUIT for event in events):
+            tools.log("game quit" , const.INFO)
+            tools.request_exit()
+            done = True
+            continue
+
+        for event in events:
             if event.type == VIDEORESIZE:
                 #resize window
                 screen = pygame.display.set_mode((event.w , event.h) , RESIZABLE)
                 tools.log(f"window resized to w:{event.w}h:{event.h}" , const.INFO)
                 const.SCREEN_RESIZE.send(data=(const.SCREEN_RESIZE_CODE, (event.w, event.h)))
                 window_size = (event.w, event.h)
-
-            if event.type == QUIT:
-                tools.log("game quit" , const.INFO)
-                done = True
             
             if event.type == MOUSEBUTTONDOWN:
                 if start_button.rect.collidepoint(event.pos):
@@ -77,7 +82,10 @@ def start():
     
     tools.log("main title loop ended" , const.DEBUG)
 
-    if should_jump_scene == "game_prep":
+    if tools.exit_requested:
+        tools.log("MAIN_TITLE: exit requested; skipping scene transition", const.INFO)
+        pygame.quit()
+    elif should_jump_scene == "game_prep":
         tools.log("jumping to game prep scene" , const.INFO)
         scenes.game_prep.start()
 
@@ -86,6 +94,10 @@ def start():
 def swich():
     global done, buttons_group, masks_group, should_jump_scene
     tools.log("switching to game prep scene" , const.INFO)
+    tools.prepare_for_new_scene()
+    global_var.return_button = Button("return", const.TARGET_MAIN_TITLE)
+    global_var.return_button_group = pygame.sprite.Group()
+    global_var.return_button_group.add(global_var.return_button)
     done = True
     should_jump_scene = "game_prep"
     

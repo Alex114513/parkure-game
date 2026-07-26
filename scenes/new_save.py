@@ -1,11 +1,13 @@
 ﻿import pygame
 import const
 import tools
+import global_var
 import scenes.main_title
 from sprites.work.masks import mask
 from sprites.buttons import button
 from sprites.buttons.input_tab import InputTab
 from scenes import real_game
+from scenes import game_prep
 from pygame.locals import *
 
 buttons_group = pygame.sprite.Group()
@@ -14,6 +16,7 @@ done = False
 
 def start():
     global done, buttons_group
+    tools.reset_exit_request()
     done = False
     tools.log("new save scene start" , const.INFO)
 
@@ -38,14 +41,18 @@ def start():
 
     #func var
     should_jump_to_real_game = False
+    should_jump_to_game_prep = False
 
     while not done:
         scenes.main_title.clock.tick(const.FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                tools.log("game quit" , const.INFO)
-                done = True
+        events = pygame.event.get()
+        if any(event.type == pygame.QUIT for event in events):
+            tools.log("game quit" , const.INFO)
+            tools.request_exit()
+            done = True
+            continue
 
+        for event in events:
             if event.type == const.SWITCH_TO_REAL_GAME_EVENT_CODE:
                 save_name = input_tab.text
                 tools.log(f"switching to real game scene with save name: {save_name}" , const.INFO)
@@ -64,6 +71,13 @@ def start():
                 if create_button.rect.collidepoint(event.pos):
                     tools.log("create button clicked.start real game scene" , const.INFO)
                     create_button.clicked()
+                if global_var.return_button.rect.collidepoint(event.pos):
+                    tools.log(f"NEW_SAVE: return button pressed, returning to {global_var.return_button.target_scene}", const.INFO)
+                    global_var.return_button.clicked()
+
+            if event.type == const.SWICH_TO_GAME_PREP_EVENT_CODE:
+                should_jump_to_game_prep = True
+                done = True
             
             input_tab.handle_event(event)
 
@@ -73,6 +87,7 @@ def start():
         ui_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.update()
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
+        global_var.return_button_group.draw(scenes.main_title.screen)
 
         #get the text surface and rect from the input tab
         text_surface, text_rect = input_tab._render_text()
@@ -81,16 +96,32 @@ def start():
 
         pygame.display.update()
 
-    if should_jump_to_real_game:
+    if tools.exit_requested:
+        tools.log("NEW_SAVE: exit requested; skipping scene transition", const.INFO)
+        pygame.quit()
+    elif should_jump_to_real_game:
         tools.log("jumping to real game scene from new save scene" , const.INFO)
         switch(const.REAL_GAME, save_name)  # Pass the save name to the switch function
+    elif should_jump_to_game_prep:
+        tools.log("jumping to game prep scene from new_save scene", const.INFO)
+        switch(const.TARGET_GAME_PREP)
+    else:
+        pygame.quit()
 
 
-def switch(scene, save_name):
+def switch(scene, save_name = None):
     global done, buttons_group, masks_group
     done = True
+    tools.prepare_for_new_scene()
 
     buttons_group.empty()
     scenes.main_title.masks_group.empty()
     if scene == const.REAL_GAME:
         real_game.start(save_name)  # Use the provided save name
+    if scene == const.TARGET_GAME_PREP:
+        tools.log("NEW_SAVE: jumping to game_prep scene" , const.INFO)
+        tools.prepare_for_new_scene()
+        global_var.return_button = button.Button("return", const.TARGET_NEW_SAVE)
+        global_var.return_button_group = pygame.sprite.Group()
+        global_var.return_button_group.add(global_var.return_button)
+        scenes.game_prep.start()

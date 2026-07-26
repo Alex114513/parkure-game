@@ -2,8 +2,10 @@ import os
 import pygame
 import tools
 import const
+import global_var
 import scenes.main_title
 import scenes.real_game
+from sprites.buttons import button
 from pygame.locals import *
 
 pygame.init()
@@ -22,7 +24,9 @@ running = True
 def start():
     global running, save_names
 
+    tools.reset_exit_request()
     running = True
+    pygame.init()
 
     tools.log("LOAD_SAVE: load save scene start" , const.INFO)
     init()
@@ -44,14 +48,19 @@ def start():
     #func var
     should_jump_to_real_game = False
     real_game_save_name = None  # Variable to hold the selected save name
+    should_jump_to_game_prep = False
     
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                tools.log("LOAD_SAVE: game quit" , const.INFO)
-                #return
+        clock.tick(const.FPS)
 
+        events = pygame.event.get()
+        if any(event.type == pygame.QUIT for event in events):
+            running = False
+            tools.log("LOAD_SAVE: game quit" , const.INFO)
+            tools.request_exit()
+            continue
+
+        for event in events:
             if event.type == VIDEORESIZE:
                 #resize window
                 screen = pygame.display.set_mode((event.w , event.h) , pygame.RESIZABLE)
@@ -70,6 +79,14 @@ def start():
                         real_game_save_name = save_name  # Store the selected save name
                         should_jump_to_real_game = True
                         break
+                if global_var.return_button.rect.collidepoint(event.pos):
+                    tools.log(f"LOAD_SAVE: return button pressed, returning to{global_var.return_button.target_scene}", const.INFO)
+                    global_var.return_button.clicked()
+            
+            if event.type == const.SWICH_TO_GAME_PREP_EVENT_CODE:
+                tools.log("switch to game event received, switching to game scene" , const.INFO)
+                running = False
+                should_jump_to_game_prep = True
 
         mask_group.update()
 
@@ -82,10 +99,22 @@ def start():
             screen.blit(text_surface, text_rect)
             draw_y += 40
         mask_group.draw(screen)
+        global_var.return_button_group.draw(scenes.main_title.screen)
         pygame.display.flip()
-        clock.tick(const.FPS)
     
-    if should_jump_to_real_game and real_game_save_name is not None:
+    if tools.exit_requested:
+        tools.log("LOAD_SAVE: exit requested; skipping scene transition", const.INFO)
+        pygame.quit()
+    elif should_jump_to_real_game and real_game_save_name is not None:
         tools.log(f"LOAD_SAVE: jumping to real game scene with save name: {real_game_save_name}" , const.INFO)
+        tools.prepare_for_new_scene()
         scenes.real_game.start(real_game_save_name)  # Pass the selected save name to the real game scene
-    
+    elif should_jump_to_game_prep:
+        tools.log("LOAD_SAVE: jumping to game_prep scene" , const.INFO)
+        tools.prepare_for_new_scene()
+        global_var.return_button = button.Button("return", const.TARGET_LOAD_SAVE)
+        global_var.return_button_group = pygame.sprite.Group()
+        global_var.return_button_group.add(global_var.return_button)
+        scenes.game_prep.start()
+    else:
+        pygame.quit()

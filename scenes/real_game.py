@@ -150,6 +150,7 @@ def reload_level():
 def start(save_name):
     global Save_name, done, should_jump_to_main_title
 
+    tools.reset_exit_request()
     Save_name = save_name
     tools.log("real game scene start" , const.INFO)
     done = False
@@ -173,11 +174,14 @@ def start(save_name):
         if paused:
             continue
         #events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                tools.log("game quit" , const.INFO)
-                done = True
+        events = pygame.event.get()
+        if any(event.type == pygame.QUIT for event in events):
+            tools.log("game quit" , const.INFO)
+            tools.request_exit()
+            done = True
+            continue
             
+        for event in events:
             if event.type == VIDEORESIZE:
                 #resize window
                 scenes.main_title.screen = pygame.display.set_mode((event.w , event.h) , RESIZABLE)
@@ -385,3 +389,5 @@ def start(save_name):
         tools.clear_scene_transition_timers()
         tools.kill_buttons()
         scenes.main_title.start()
+    else:
+        pygame.quit()

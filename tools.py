@@ -1,5 +1,6 @@
 import logging
 import json
+import global_var
 from logging.handlers import RotatingFileHandler
 import const
 from pathlib import Path
@@ -12,6 +13,9 @@ logging.basicConfig(
     filename="parkure.log",
     filemode="w"
 )
+
+exit_requested = False
+
 
 def log(log , type):
     if type == const.DEBUG:
@@ -112,6 +116,21 @@ def axis_aligned_bbox_from_rect(rect, angle):
     min_y, max_y = min(ys), max(ys)
     return pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)#, rotated  # 返回包围盒和四个顶点
 
+def request_exit():
+    """Mark the app as exiting and clear any queued scene-switch state."""
+    global exit_requested
+    exit_requested = True
+    clear_scene_transition_timers()
+    log("TOOLS: exit requested", const.INFO)
+
+
+def reset_exit_request():
+    """Clear the global exit-request flag for a new scene loop."""
+    global exit_requested
+    exit_requested = False
+    log("TOOLS: exit request reset", const.DEBUG)
+
+
 def clear_scene_transition_timers():
     """Clear pending scene-switch timers and queued events so stale transitions do not fire in the next scene."""
     for event_code in (
@@ -119,6 +138,8 @@ def clear_scene_transition_timers():
         const.SWITCH_TO_NEW_SAVE_EVENT_CODE,
         const.SWITCH_TO_LOAD_SAVE_EVENT_CODE,
         const.SWITCH_TO_REAL_GAME_EVENT_CODE,
+        const.SWICH_TO_GAME_PREP_EVENT_CODE,
+        const.SWITCH_TO_MAIN_TITLE_EVENT_CODE
     ):
         pygame.time.set_timer(event_code, 0)
 
@@ -139,5 +160,23 @@ def kill_buttons():
     if new_save.ui_group != None:
         for ui in new_save.ui_group:
             ui.kill()
+    if global_var.return_button_group != None:
+        for item in global_var.return_button_group:
+            item.kill()
 
     log("TOOLS: deleted all buttons", const.INFO)
+
+
+def clear_masks():
+    """Remove all active overlay masks so new scenes do not inherit old black screens."""
+    from scenes import main_title
+    for mask in list(main_title.masks_group):
+        mask.kill()
+    log("TOOLS: cleared masks", const.INFO)
+
+
+def prepare_for_new_scene():
+    """runs kill_buttons() and clear_scene_transition_timers() to get ready for scene swich"""
+    kill_buttons()
+    clear_masks()
+    clear_scene_transition_timers()

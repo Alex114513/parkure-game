@@ -1,6 +1,7 @@
 import pygame
 import const
 import tools
+import global_var
 import scenes.main_title
 import sprites.buttons.button as button
 import sprites.work.masks.mask as mask
@@ -14,6 +15,7 @@ should_jump_scene = None
 def start():
     global should_jump_scene
 
+    tools.reset_exit_request()
     tools.log("game scene start" , const.INFO)
     done = False
 
@@ -33,15 +35,18 @@ def start():
     start_mask.fade(1)
 
     while not done:
-
+        
         scenes.main_title.clock.tick(const.FPS)
 
         #events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                tools.log("game quit" , const.INFO)
-                done = True
+        events = pygame.event.get()
+        if any(event.type == pygame.QUIT for event in events):
+            tools.log("game quit" , const.INFO)
+            tools.request_exit()
+            done = True
+            continue
 
+        for event in events:
             if event.type == const.SWITCH_TO_NEW_SAVE_EVENT_CODE:
                 tools.log("switching to new save scene" , const.INFO)
                 done = True
@@ -51,6 +56,11 @@ def start():
                 tools.log("switching to load save scene" , const.INFO)
                 done = True
                 should_jump_scene = "load_save"
+            
+            if event.type == const.SWITCH_TO_MAIN_TITLE_EVENT_CODE:
+                tools.log("GAME_PREP: swiching to main_title", const.INFO)
+                done = True
+                should_jump_scene = const.TARGET_MAIN_TITLE
 
             if event.type == VIDEORESIZE:
                 #resize window
@@ -66,32 +76,54 @@ def start():
                 if load_save_button.rect.collidepoint(event.pos):
                     tools.log("load save button clicked.start load save scene" , const.INFO)
                     load_save_button.clicked()
+                if global_var.return_button.rect.collidepoint(event.pos):
+                    tools.log(f"GAME_PREP: return button pressed, returning to{global_var.return_button.target_scene}", const.INFO)
+                    global_var.return_button.clicked()
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
         buttons_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.draw(scenes.main_title.screen)
+        global_var.return_button_group.draw(scenes.main_title.screen)
         pygame.display.update()
 
         #call sprites update
         scenes.main_title.masks_group.update()
     
-    if should_jump_scene == "new_save":
+    if tools.exit_requested:
+        tools.log("GAME_PREP: exit requested; skipping scene transition", const.INFO)
+        pygame.quit()
+    elif should_jump_scene == "new_save":
         switch("new_save")
-    if should_jump_scene == "load_save":
+    elif should_jump_scene == "load_save":
         switch("load_save")
+    elif should_jump_scene == const.TARGET_MAIN_TITLE:
+        switch(const.TARGET_MAIN_TITLE)
+    else:
+        pygame.quit()
 
 def switch(to):
     global done, buttons_group, masks_group
     done = True
     tools.log(f"switching to {to}" , const.INFO)
+    tools.prepare_for_new_scene()
     buttons_group.empty()
     scenes.main_title.masks_group.empty()
     if to == const.TARGET_NEW_SAVE:
         import scenes.new_save as new_save
         tools.log("switching to new save scene" , const.INFO)
+        global_var.return_button = button.Button("return", const.TARGET_GAME_PREP)
+        global_var.return_button_group = pygame.sprite.Group()
+        global_var.return_button_group.add(global_var.return_button)
         new_save.start()
     if to == const.TARGET_LOAD_SAVE:
         import scenes.load_save as load_save
         tools.log("switching to load save scene" , const.INFO)
+        global_var.return_button = button.Button("return", const.TARGET_GAME_PREP)
+        global_var.return_button_group = pygame.sprite.Group()
+        global_var.return_button_group.add(global_var.return_button)
         load_save.start()
+    if to == const.TARGET_MAIN_TITLE:
+        import scenes.main_title as main_title
+        tools.log("GAME_PREP: swithcing to main_title", const.INFO)
+        main_title.start()
