@@ -15,6 +15,15 @@ should_jump_scene = None
 def start():
     global should_jump_scene
 
+    #return button
+    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_GAME_PREP))
+    global_var.return_button_group = pygame.sprite.Group()
+    global_var.return_button_group.add(global_var.return_button)
+
+    #manage scene stack
+    tools.push_scene(const.TARGET_GAME_PREP)
+    tools.log(f"GAME_PREP: scene start, stack:{global_var.scene_stack}", const.DEBUG)
+
     tools.reset_exit_request()
     tools.log("game scene start" , const.INFO)
     done = False
@@ -35,7 +44,6 @@ def start():
     start_mask.fade(1)
 
     while not done:
-        
         scenes.main_title.clock.tick(const.FPS)
 
         #events
@@ -78,6 +86,7 @@ def start():
                     load_save_button.clicked()
                 if global_var.return_button.rect.collidepoint(event.pos):
                     tools.log(f"GAME_PREP: return button pressed, returning to{global_var.return_button.target_scene}", const.INFO)
+                    tools.pop_scene()
                     global_var.return_button.clicked()
 
         #draw
@@ -111,17 +120,11 @@ def switch(to):
     scenes.main_title.masks_group.empty()
     if to == const.TARGET_NEW_SAVE:
         import scenes.new_save as new_save
-        tools.log("switching to new save scene" , const.INFO)
-        global_var.return_button = button.Button("return", const.TARGET_GAME_PREP)
-        global_var.return_button_group = pygame.sprite.Group()
-        global_var.return_button_group.add(global_var.return_button)
+        tools.log(f"switching to {global_var.scene_stack[global_var.scene_stack_top]} scene, current stack:{global_var.scene_stack}, stack_top:{global_var.scene_stack_top}" , const.INFO)
         new_save.start()
     if to == const.TARGET_LOAD_SAVE:
         import scenes.load_save as load_save
-        tools.log("switching to load save scene" , const.INFO)
-        global_var.return_button = button.Button("return", const.TARGET_GAME_PREP)
-        global_var.return_button_group = pygame.sprite.Group()
-        global_var.return_button_group.add(global_var.return_button)
+        tools.log(f"switching to {global_var.scene_stack[global_var.scene_stack_top]} scene, current stack:{global_var.scene_stack}, stack_top:{global_var.scene_stack_top}" , const.INFO)
         load_save.start()
     if to == const.TARGET_MAIN_TITLE:
         import scenes.main_title as main_title

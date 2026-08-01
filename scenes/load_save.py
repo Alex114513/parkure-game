@@ -6,6 +6,7 @@ import global_var
 import scenes.main_title
 import scenes.real_game
 from sprites.buttons import button
+from scenes import main_title
 from pygame.locals import *
 
 pygame.init()
@@ -24,6 +25,15 @@ running = True
 def start():
     global running, save_names
 
+    #return button
+    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_LOAD_SAVE))
+    global_var.return_button_group = pygame.sprite.Group()
+    global_var.return_button_group.add(global_var.return_button)
+
+    #manage scene stack
+    tools.push_scene(const.TARGET_LOAD_SAVE)
+    tools.log(f"LOAD_SAVE: scene start, stack:{global_var.scene_stack}", const.DEBUG)
+
     tools.reset_exit_request()
     running = True
     pygame.init()
@@ -36,12 +46,10 @@ def start():
     if screen is None:
         screen = pygame.display.set_mode((800, 600))
 
-    #groups
-    mask_group = pygame.sprite.Group()  # Placeholder for any sprite groups you might want to use
     #init mask
     start_mask = scenes.main_title.mask.Mask((0, 0, 0))
     start_mask.fade(1)
-    mask_group.add(start_mask)
+    main_title.masks_group.add(start_mask)
 
     clock = pygame.time.Clock()
 
@@ -81,6 +89,7 @@ def start():
                         break
                 if global_var.return_button.rect.collidepoint(event.pos):
                     tools.log(f"LOAD_SAVE: return button pressed, returning to{global_var.return_button.target_scene}", const.INFO)
+                    tools.pop_scene()
                     global_var.return_button.clicked()
             
             if event.type == const.SWICH_TO_GAME_PREP_EVENT_CODE:
@@ -88,7 +97,7 @@ def start():
                 running = False
                 should_jump_to_game_prep = True
 
-        mask_group.update()
+        main_title.masks_group.update()
 
         screen.fill(const.DARK_BLUE)
         draw_y = 50
@@ -98,7 +107,7 @@ def start():
             text_rect = text_surface.get_rect(center=(150, draw_y))
             screen.blit(text_surface, text_rect)
             draw_y += 40
-        mask_group.draw(screen)
+        main_title.masks_group.draw(screen)
         global_var.return_button_group.draw(scenes.main_title.screen)
         pygame.display.flip()
     
@@ -110,11 +119,8 @@ def start():
         tools.prepare_for_new_scene()
         scenes.real_game.start(real_game_save_name)  # Pass the selected save name to the real game scene
     elif should_jump_to_game_prep:
-        tools.log("LOAD_SAVE: jumping to game_prep scene" , const.INFO)
+        tools.log(f"switching to {global_var.scene_stack[global_var.scene_stack_top]} scene, current stack:{global_var.scene_stack}, stack_top:{global_var.scene_stack_top}" , const.INFO)
         tools.prepare_for_new_scene()
-        global_var.return_button = button.Button("return", const.TARGET_LOAD_SAVE)
-        global_var.return_button_group = pygame.sprite.Group()
-        global_var.return_button_group.add(global_var.return_button)
         scenes.game_prep.start()
     else:
         pygame.quit()

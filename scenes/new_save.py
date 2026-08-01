@@ -16,6 +16,16 @@ done = False
 
 def start():
     global done, buttons_group
+
+    #return button
+    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_NEW_SAVE))
+    global_var.return_button_group = pygame.sprite.Group()
+    global_var.return_button_group.add(global_var.return_button)
+
+    #manage scene stack
+    tools.push_scene(const.TARGET_NEW_SAVE)
+    tools.log(f"NEW_SAVE: scene start, stack:{global_var.scene_stack}", const.DEBUG)
+
     tools.reset_exit_request()
     done = False
     tools.log("new save scene start" , const.INFO)
@@ -73,6 +83,7 @@ def start():
                     create_button.clicked()
                 if global_var.return_button.rect.collidepoint(event.pos):
                     tools.log(f"NEW_SAVE: return button pressed, returning to {global_var.return_button.target_scene}", const.INFO)
+                    tools.pop_scene()
                     global_var.return_button.clicked()
 
             if event.type == const.SWICH_TO_GAME_PREP_EVENT_CODE:
@@ -119,9 +130,6 @@ def switch(scene, save_name = None):
     if scene == const.REAL_GAME:
         real_game.start(save_name)  # Use the provided save name
     if scene == const.TARGET_GAME_PREP:
-        tools.log("NEW_SAVE: jumping to game_prep scene" , const.INFO)
+        tools.log(f"switching to {global_var.scene_stack[global_var.scene_stack_top]} scene, current stack:{global_var.scene_stack}, stack_top:{global_var.scene_stack_top}" , const.INFO)
         tools.prepare_for_new_scene()
-        global_var.return_button = button.Button("return", const.TARGET_NEW_SAVE)
-        global_var.return_button_group = pygame.sprite.Group()
-        global_var.return_button_group.add(global_var.return_button)
         scenes.game_prep.start()

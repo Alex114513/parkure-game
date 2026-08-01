@@ -28,6 +28,10 @@ clock = pygame.time.Clock()
 
 def start():
     global window_size , done , screen, should_jump_scene
+
+    tools.push_scene(const.TARGET_MAIN_TITLE)
+    tools.log(f"MAIN_TITLE: scene start, stack:{global_var.scene_stack}", const.DEBUG)
+
     
     tools.reset_exit_request()
     tools.clear_scene_transition_timers()
@@ -45,7 +49,6 @@ def start():
 
     #main loop
     while not done:
-
         clock.tick(const.FPS)
 
         #events

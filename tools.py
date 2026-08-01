@@ -175,6 +175,47 @@ def clear_masks():
     log("TOOLS: cleared masks", const.INFO)
 
 
+def get_return_target(scene_name):
+    """Resolve the parent scene for a return button from the navigation stack.
+
+    When a scene is re-entered without leaving the stack shape intact, the current
+    stack top already equals the scene being started. In that case the return
+    target must be the parent below the current scene instead of the scene itself.
+    """
+    if global_var.scene_stack_top == -1:
+        return const.TARGET_MAIN_TITLE
+
+    if global_var.scene_stack[global_var.scene_stack_top] == scene_name:
+        if global_var.scene_stack_top > 0:
+            return global_var.scene_stack[global_var.scene_stack_top - 1]
+        return const.TARGET_MAIN_TITLE
+
+    return global_var.scene_stack[global_var.scene_stack_top]
+
+
+def push_scene(scene_name):
+    """Append a scene to the navigation stack only when it is not already the active top scene."""
+    if global_var.scene_stack_top == -1:
+        global_var.scene_stack = [scene_name]
+        global_var.scene_stack_top = 0
+        return
+
+    if global_var.scene_stack[global_var.scene_stack_top] != scene_name:
+        global_var.scene_stack.append(scene_name)
+        global_var.scene_stack_top += 1
+
+
+def pop_scene():
+    """Remove the current scene from the navigation stack and return to its parent scene."""
+    if global_var.scene_stack_top <= 0:
+        global_var.scene_stack = []
+        global_var.scene_stack_top = -1
+        return
+
+    global_var.scene_stack.pop()
+    global_var.scene_stack_top -= 1
+
+
 def prepare_for_new_scene():
     """runs kill_buttons() and clear_scene_transition_timers() to get ready for scene swich"""
     kill_buttons()

@@ -11,3 +11,7 @@ window_size = (800, 800)
 Edit_mode_currsor = None
 return_button = None
 return_button_group = pygame.sprite.Group()
+
+#scenes
+scene_stack = []
+scene_stack_top = -1
