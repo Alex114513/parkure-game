@@ -16,9 +16,7 @@ def start():
     global should_jump_scene
 
     #return button
-    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_GAME_PREP))
-    global_var.return_button_group = pygame.sprite.Group()
-    global_var.return_button_group.add(global_var.return_button)
+    global_var.return_button = tools.create_return_button(tools.get_return_target(const.TARGET_GAME_PREP))
 
     #manage scene stack
     tools.push_scene(const.TARGET_GAME_PREP)
@@ -33,6 +31,7 @@ def start():
     buttons_group.add(new_save_button)
     load_save_button = button.Button("load_save", const.TARGET_LOAD_SAVE)
     buttons_group.add(load_save_button)
+    buttons_group.add(global_var.return_button)
 
     const.SCREEN_RESIZE.connect(load_save_button.messege)
     const.SCREEN_RESIZE.connect(new_save_button.messege)
@@ -89,15 +88,27 @@ def start():
                     tools.pop_scene()
                     global_var.return_button.clicked()
 
+            if event.type == MOUSEMOTION:
+                for button_ in buttons_group:
+                    if button_.rect.collidepoint(event.pos):
+                        tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1.2
+                    else:
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1
+
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
         buttons_group.draw(scenes.main_title.screen)
-        scenes.main_title.masks_group.draw(scenes.main_title.screen)
         global_var.return_button_group.draw(scenes.main_title.screen)
+        scenes.main_title.masks_group.draw(scenes.main_title.screen)
         pygame.display.update()
 
         #call sprites update
         scenes.main_title.masks_group.update()
+        global_var.return_button_group.update()
+        buttons_group.update()
     
     if tools.exit_requested:
         tools.log("GAME_PREP: exit requested; skipping scene transition", const.INFO)

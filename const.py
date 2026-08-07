@@ -52,3 +52,7 @@ CLOCK = pygame.time.Clock()
 
 #fonts
 DEAFAULT_FONT  = pygame.font.Font(None, 20)
+
+#animation
+clap_abs = 0.05
+change_speed = 0.4

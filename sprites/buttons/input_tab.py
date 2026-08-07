@@ -12,6 +12,8 @@ class InputTab(pygame.sprite.Sprite):
         config = button_config["input_tab"]
 
         self.original_image = pygame.image.load(config["path"]).convert_alpha()
+        self.original_x = button_config["input_tab"]["position"][0]
+        self.original_y = button_config["input_tab"]["position"][1]
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.topleft = tuple(config["position"])
@@ -58,8 +60,8 @@ class InputTab(pygame.sprite.Sprite):
             y_multiplier = data[1][1] / const.window_size[1]
             #calculate the new width and height of the button
             multiplier = min(x_multiplier , y_multiplier)
-            new_width = int(button_config[self.type]["size"][0] * multiplier)
-            new_height = int(button_config[self.type]["size"][1] * multiplier)
+            new_width = int(button_config["input_tab"]["size"][0] * multiplier)
+            new_height = int(button_config["input_tab"]["size"][1] * multiplier)
             #apply the new width and height to the button image
             self.image = pygame.transform.scale(self.original_image , (new_width , new_height))
             #calculate the new x and y position of the button

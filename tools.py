@@ -221,3 +221,14 @@ def prepare_for_new_scene():
     kill_buttons()
     clear_masks()
     clear_scene_transition_timers()
+
+
+def create_return_button(target_scene):
+    """Create a return button and register it for resize updates."""
+    import sprites.buttons.button as button
+
+    return_button = button.Button("return", target_scene)
+    global_var.return_button = return_button
+    global_var.return_button_group = pygame.sprite.Group(return_button)
+    const.SCREEN_RESIZE.connect(return_button.messege)
+    return return_button

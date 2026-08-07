@@ -42,6 +42,10 @@ def start():
     #build buttons
     start_button = Button("Start", const.TARGET_GAME)
 
+    #build start mask
+    start_mask = mask.Mask(const.BLACK)
+    start_mask.fade(1)
+
     #connect signal to button
     const.SCREEN_RESIZE.connect(start_button.messege)
 
@@ -76,8 +80,20 @@ def start():
                 tools.log("switch to game event received, switching to game scene" , const.INFO)
                 swich()
 
+            if event.type == MOUSEMOTION:
+                for button_ in buttons_group:
+                    if button_.rect.collidepoint(event.pos):
+                        tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1.2
+                    else:
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1
+
         #draw
         masks_group.update()
+        buttons_group.update()
+        global_var.return_button_group.update()
         screen.fill (const.DARK_BLUE)
         buttons_group.draw(screen)
         masks_group.draw(screen)
@@ -98,9 +114,7 @@ def swich():
     global done, buttons_group, masks_group, should_jump_scene
     tools.log("switching to game prep scene" , const.INFO)
     tools.prepare_for_new_scene()
-    global_var.return_button = Button("return", const.TARGET_MAIN_TITLE)
-    global_var.return_button_group = pygame.sprite.Group()
-    global_var.return_button_group.add(global_var.return_button)
+    global_var.return_button = tools.create_return_button(const.TARGET_MAIN_TITLE)
     done = True
     should_jump_scene = "game_prep"
     

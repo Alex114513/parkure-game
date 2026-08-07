@@ -18,9 +18,7 @@ def start():
     global done, buttons_group
 
     #return button
-    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_NEW_SAVE))
-    global_var.return_button_group = pygame.sprite.Group()
-    global_var.return_button_group.add(global_var.return_button)
+    global_var.return_button = tools.create_return_button(tools.get_return_target(const.TARGET_NEW_SAVE))
 
     #manage scene stack
     tools.push_scene(const.TARGET_NEW_SAVE)
@@ -44,6 +42,7 @@ def start():
     create_button = button.Button("create", const.REAL_GAME)
     input_tab = InputTab("", const.DEAFAULT_FONT, const.WHITE)
     ui_group = pygame.sprite.Group(create_button, input_tab)
+    buttons_group.add(global_var.return_button, create_button)
 
     #message connection
     const.SCREEN_RESIZE.connect(create_button.messege)
@@ -89,16 +88,27 @@ def start():
             if event.type == const.SWICH_TO_GAME_PREP_EVENT_CODE:
                 should_jump_to_game_prep = True
                 done = True
+
+            if event.type == MOUSEMOTION:
+                for button_ in buttons_group:
+                    if button_.rect.collidepoint(event.pos):
+                        tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1.2
+                    else:
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1
             
             input_tab.handle_event(event)
 
         #draw
         scenes.main_title.screen.fill(const.DARK_BLUE)
         ui_group.update()
+        global_var.return_button_group.update()
         ui_group.draw(scenes.main_title.screen)
         scenes.main_title.masks_group.update()
-        scenes.main_title.masks_group.draw(scenes.main_title.screen)
         global_var.return_button_group.draw(scenes.main_title.screen)
+        scenes.main_title.masks_group.draw(scenes.main_title.screen)
 
         #get the text surface and rect from the input tab
         text_surface, text_rect = input_tab._render_text()

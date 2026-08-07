@@ -26,9 +26,7 @@ def start():
     global running, save_names
 
     #return button
-    global_var.return_button = button.Button("return", tools.get_return_target(const.TARGET_LOAD_SAVE))
-    global_var.return_button_group = pygame.sprite.Group()
-    global_var.return_button_group.add(global_var.return_button)
+    global_var.return_button = tools.create_return_button(tools.get_return_target(const.TARGET_LOAD_SAVE))
 
     #manage scene stack
     tools.push_scene(const.TARGET_LOAD_SAVE)
@@ -57,6 +55,10 @@ def start():
     should_jump_to_real_game = False
     real_game_save_name = None  # Variable to hold the selected save name
     should_jump_to_game_prep = False
+
+    #sprite manage
+    buttons_group = pygame.sprite.Group()
+    buttons_group.add(global_var.return_button)
     
     while running:
         clock.tick(const.FPS)
@@ -97,7 +99,18 @@ def start():
                 running = False
                 should_jump_to_game_prep = True
 
+            if event.type == MOUSEMOTION:
+                for button_ in buttons_group:
+                    if button_.rect.collidepoint(event.pos):
+                        tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1.2
+                    else:
+                        if button_.target_size_mul != 0.8:
+                            button_.target_size_mul = 1
+
         main_title.masks_group.update()
+        global_var.return_button_group.update()
 
         screen.fill(const.DARK_BLUE)
         draw_y = 50
@@ -107,8 +120,8 @@ def start():
             text_rect = text_surface.get_rect(center=(150, draw_y))
             screen.blit(text_surface, text_rect)
             draw_y += 40
-        main_title.masks_group.draw(screen)
         global_var.return_button_group.draw(scenes.main_title.screen)
+        main_title.masks_group.draw(screen)
         pygame.display.flip()
     
     if tools.exit_requested:
