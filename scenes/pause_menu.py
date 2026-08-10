@@ -15,7 +15,7 @@ def start(save_name):
 
     clock = pygame.time.Clock()
 
-    save_and_exit_button = button.Button("save_and_exit", "exit")
+    save_and_exit_button = button.Button("save_and_exit", "main_title")
     buttons_group = pygame.sprite.Group(save_and_exit_button)
 
     running = True
@@ -33,12 +33,16 @@ def start(save_name):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if save_and_exit_button.rect.collidepoint(event.pos):
                     save_and_exit_button.clicked()
-                    tools.new_save(save_name)
-                    running = False
-                    return 2
+
+            if event.type == const.SWITCH_TO_MAIN_TITLE_EVENT_CODE:
+                tools.new_save(save_name)
+                running = False
+                return 2
 
         screen.fill((0, 0, 0))
         buttons_group.draw(screen)
+        main_title.masks_group.update()
+        main_title.masks_group.draw(main_title.screen)
         pygame.display.flip()
         clock.tick(60)
 

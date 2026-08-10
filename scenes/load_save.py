@@ -6,6 +6,7 @@ import global_var
 import scenes.main_title
 import scenes.real_game
 from sprites.buttons import button
+from sprites.work.masks import mask
 from scenes import main_title
 from pygame.locals import *
 
@@ -59,6 +60,7 @@ def start():
     #sprite manage
     buttons_group = pygame.sprite.Group()
     buttons_group.add(global_var.return_button)
+    mask_ = None
     
     while running:
         clock.tick(const.FPS)
@@ -85,9 +87,12 @@ def start():
                     if text_rect.collidepoint(mouse_pos):
                         tools.log(f"LOAD_SAVE: selected save: {save_name} at path: {save_path}" , const.INFO)
                         # Here you can add the logic to load the selected save
-                        running = False
                         real_game_save_name = save_name  # Store the selected save name
                         should_jump_to_real_game = True
+                        pygame.time.set_timer(const.SWITCH_TO_REAL_GAME_EVENT_CODE, 900)
+                        mask_ = mask.Mask(const.BLACK)
+                        mask_.fade_in(1)
+                        main_title.masks_group.add(mask_)
                         break
                 if global_var.return_button.rect.collidepoint(event.pos):
                     tools.log(f"LOAD_SAVE: return button pressed, returning to{global_var.return_button.target_scene}", const.INFO)
@@ -108,6 +113,9 @@ def start():
                     else:
                         if button_.target_size_mul != 0.8:
                             button_.target_size_mul = 1
+
+            if event.type == const.SWITCH_TO_REAL_GAME_EVENT_CODE:
+                running = False
 
         main_title.masks_group.update()
         global_var.return_button_group.update()
