@@ -1,29 +1,43 @@
-# Get On!
+# **Parkour game**
 
-This is a parkour game made by a twelve-year old,so don't expect it to be very fancy.
+## Overview
 
-## How?
+This is a basic parkour game based on python and pygame.
 
-**1**.Install python 3.13.
+## Features
 
-**2**.Run **pip install pygame** in **powershell** or **cmd**.
+- Side-scrolling platform movement
+- Jumping and ground detection
+- Main menu and scene transitions
+- New save and load save support
+- Pause menu
 
-**3**.Run the **main.py**  file with **python**.
+## Controls
 
-***Or***
+- A and D for moving left and right
+- W for jumping
+- Esc for pausing
+- 0 key for editing mode (only when `debug_mode = True` in const.py)
+- L and R for rotating platform (in edit mode)
+- Left-arrow,Right-arrow,Up-arrow and Down-arrow for resizing platform(in edit mode)
+
+## How to run
+
+1. Install Python 3.10 or newer.
+2. Install pygame and blinker by running `pip install pygame blinker`
+3. Run the game by `python main.py`(before,please use`cd`to cd into the project file(Parkour game) )
 
 
-After the three steps on top,  you should see a pygame window.Now you can start playing!
 
-### Control
+## Project Structure
 
-| Item     | keys            |
-| -------- | --------------- |
-| Movement | WASD/Arrow keys |
-| Jumping  | Space           |
+* [main.py](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - Program entry point
+* [scenes](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - Game scenes such as title, gameplay, save menu, and pause menu
+* [sprites](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - Player, platforms, and other game objects
+* [configs](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - JSON configuration files
+* [saves](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - Player save data
+* [tests](<vscode-file://vscode-app/c:/Users/ALEXXXXXXXXXXXXXXXXX/AppData/Local/Programs/Microsoft%20VS%20Code/df53daabb1/resources/app/out/vs/code/electron-browser/workbench/workbench.html>) - Automated tests
 
-(Default keys)
+## Current Status
 
-# Contributing & Feedback
-
-If you have any bugs to report or feedback to say, please Create an issue on the Github page.
+This project is still in active development.A lot if features(like NPCs,levels and enimies etc.) are not implemented yet.
