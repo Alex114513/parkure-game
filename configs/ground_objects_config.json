@@ -1,0 +1,19 @@
+{
+    "platform": {
+        "image_path": "pict/ground/platform.png",
+        "width": 100,
+        "height": 20
+    },
+    "moving_platform": {
+        "image_path": "pict/ground/moving_platform.png",
+        "width": 100,
+        "height": 20,
+        "movement_range": 200,
+        "speed": 2
+    },
+    "spike_trap": {
+        "image_path": "pict/ground/spike_trap.png",
+        "width": 50,
+        "height": 20
+    }
+}
