@@ -22,3 +22,7 @@ target/
 .env
 *.pem
 *.pyc
+
+generate_images.py
+
+tests/

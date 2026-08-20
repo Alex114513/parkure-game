@@ -1,0 +1,37 @@
+{
+    "Start": {
+        "path": "pict/buttons/Start.png",
+        "size": [256, 128],
+        "position": [100, 100]
+    },
+    "new_save": {
+        "path": "pict/buttons/new_save.png",
+        "size": [256, 128],
+        "position": [200, 200]
+    },
+    "load_save": {
+        "path": "pict/buttons/load_save.png",
+        "size": [256, 128],
+        "position": [200, 350]
+    },
+    "create": {
+        "path": "pict/buttons/create.png",
+        "size": [256, 128],
+        "position": [200, 200]
+    },
+    "save_and_exit": {
+        "path": "pict/buttons/save_and_exit.png",
+        "size": [256, 128],
+        "position": [200, 500]
+    },
+    "input_tab":{
+        "path": "pict/buttons/input_tab.png",
+        "size": [256, 128],
+        "position": [200, 400]
+    },
+    "return": {
+        "path": "pict/buttons/return.png",
+        "size": [256, 128],
+        "position": [200, 600]
+    }
+}

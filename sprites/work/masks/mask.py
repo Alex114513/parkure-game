@@ -1,10 +1,12 @@
 import pygame
+import tools
 import scenes.main_title as main_title
 
 class Mask(pygame.sprite.Sprite):
-    def __init__(self, color):
+    def __init__(self, color, size=None):
         super().__init__()
-        self.image = pygame.Surface(main_title.window_size, pygame.SRCALPHA)
+        surface_size = size or main_title.window_size
+        self.image = pygame.Surface(surface_size, pygame.SRCALPHA)
         self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.x = 0
@@ -23,6 +25,9 @@ class Mask(pygame.sprite.Sprite):
                 if self.alpha >= self.target_alpha:
                     self.alpha = self.target_alpha
                     self.fading = False
+                    if self.target_alpha == 255:
+                        self.kill()
+
             elif self.alpha > self.target_alpha:
                 self.alpha -= self.speed
                 if self.alpha <= self.target_alpha:

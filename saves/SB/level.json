@@ -1,0 +1,48 @@
+{
+    "current_level": 1,
+    "unlocked_levels": [
+        1
+    ],
+    "1": {
+        "enemies": [
+            {
+                "type": "enemy1",
+                "position": [
+                    100,
+                    100
+                ]
+            },
+            {
+                "type": "enemy2",
+                "position": [
+                    200,
+                    200
+                ]
+            }
+        ],
+        "platforms": [
+            {
+                "position": [
+                    0,
+                    150
+                ],
+                "size": [
+                    100,
+                    20
+                ],
+                "rotation": 0
+            },
+            {
+                "position": [
+                    200,
+                    300
+                ],
+                "size": [
+                    150,
+                    20
+                ],
+                "rotation": 0
+            }
+        ]
+    }
+}
