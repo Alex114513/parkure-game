@@ -83,7 +83,7 @@ def start():
             if event.type == MOUSEMOTION:
                 for button_ in buttons_group:
                     if button_.rect.collidepoint(event.pos):
-                        tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
+                        #tools.log(f"mouse is hovering on {button_.type} button", const.INFO)
                         if button_.target_size_mul != 0.8:
                             button_.target_size_mul = 1.2
                     else:

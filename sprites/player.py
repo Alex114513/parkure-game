@@ -98,24 +98,8 @@ class Player(pygame.sprite.Sprite):
             self.calc_x += dx
             if self.collide():
                 direction = 1 if dx > 0 else -1
-                flag = False
-                for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                    self.rect.y -= 1
-                    self.calc_y -= 1
-                    tools.log(f"Resovling smooth up-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                    if not self.collide():
-                        tools.log(f"Resovled smooth up-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                        flag = True
-                        break
-                
-                if flag == False:
-                    self.rect.y = tmp_y
-                    self.calc_y = tmp_y
-                
                 flag2 = False
                 for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                    self.rect.y += 1
-                    self.calc_y += 1
                     tools.log(f"Resolving smooth down-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
                     if self.collide():
                         self.rect.y -= 1
@@ -124,17 +108,34 @@ class Player(pygame.sprite.Sprite):
                         tools.log(f"Resovled smooth down-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
                         flag2 = True
                         break
+                    self.rect.y += 1
+                    self.calc_y += 1
                 if flag2 == False:
                     tools.log("Faild to resolve smooth down-slope", const.DEBUG)
                     self.rect.y = tmp_y  # Reset to original position if no collision detected
                     self.calc_y = tmp_y
+                
+                flag = False
+                for i in range(10):  # Limit the number of iterations to prevent infinite loops
+                    #tools.log(f"Resovling smooth up-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                    if not self.collide():
+                        tools.log(f"Resovled smooth up-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
+                        flag = True
+                        break
+                    self.rect.y -= 1
+                    self.calc_y -= 1
+                
+                if flag == False:
+                    self.rect.y = tmp_y
+                    self.calc_y = tmp_y
             
-            if self.collide():
-                tools.log("Faild to resovle smooth up-slope", const.DEBUG)
-                while self.collide():
-                    self.rect.x -= direction
-                    self.calc_x -= direction
-                self.velocity_x = 0
+                if self.collide():
+                    tools.log("Faild to resovle smooth slope", const.DEBUG)
+                    while self.collide():
+                        self.rect.x -= direction
+                        self.calc_x -= direction
+                    tools.log(f"Got player out of collision.collide?:{self.collide()}, on_ground(func)?:{self.check_on_ground()}, on_ground(var)?:{self.on_ground}", const.DEBUG)
+                    self.velocity_x = 0
 
         if dy != 0:
             self.rect.y += dy
@@ -159,24 +160,35 @@ class Player(pygame.sprite.Sprite):
     def update_ground_state(self):
         if self.check_on_ground():
             self._ground_buffer = 3
-        elif self._ground_buffer > 0:
-            self._ground_buffer -= 1
+        else:
+            self._ground_buffer = 0
+        #elif self._ground_buffer > 0:
+        #    self._ground_buffer -= 1
         self.on_ground = self._ground_buffer > 0
 
     def check_on_ground(self):
-        probe_y = self.rect.bottom - 2
-        probe_xs = [self.rect.left + 1, self.rect.centerx, self.rect.right - 1]
+        mask_width, _ = self.mask.get_size()
+        mask_bounds_list = self.mask.get_bounding_rects()
+        if not mask_bounds_list:
+            return False
 
-        for probe_x in probe_xs:
-            for platform in real_game.platforms_group:
-                if not platform.rect.collidepoint(probe_x, probe_y):
-                    continue
+        effective_bottom = max(bounds.bottom for bounds in mask_bounds_list)
+        ground_mask = pygame.mask.Mask((mask_width, 2))
+        for y in range(max(0, effective_bottom - 2), effective_bottom):
+            for x in range(mask_width):
+                if self.mask.get_at((x, y)):
+                    ground_mask.set_at((x, y - (effective_bottom - 2)), 1)
 
-                local_x = int(probe_x - platform.rect.left)
-                local_y = int(probe_y - platform.rect.top)
-                if 0 <= local_x < platform.mask.get_size()[0] and 0 <= local_y < platform.mask.get_size()[1]:
-                    if platform.mask.get_at((local_x, local_y)):
-                        return True
+        for platform in real_game.platforms_group:
+            player_mask_bottom = self.rect.top + effective_bottom
+            if not player_mask_bottom <= platform.rect.top <= player_mask_bottom + 2:
+                continue
+            offset = (
+                platform.rect.left - self.rect.left,
+                platform.rect.top - player_mask_bottom,
+            )
+            if ground_mask.overlap(platform.mask, offset):
+                return True
 
         return False
     

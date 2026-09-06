@@ -61,6 +61,44 @@ class PlayerGroundStateTests(unittest.TestCase):
         self.player.update_ground_state()
         self.assertFalse(self.player.on_ground)
 
+    def test_wall_contact_does_not_count_as_ground_contact(self):
+        wall = pygame.sprite.Sprite()
+        wall.rect = pygame.Rect(10, 0, 20, 40)
+        surface = pygame.Surface((20, 40), pygame.SRCALPHA)
+        surface.fill((255, 255, 255))
+        wall.mask = pygame.mask.from_surface(surface)
+        sys.modules["scenes.real_game"].platforms_group.add(wall)
+
+        self.player.rect = pygame.Rect(0, 0, 10, 10)
+        self.player.calc_x = 0
+        self.player.calc_y = 0
+        self.player.mask = pygame.mask.from_surface(
+            pygame.Surface((10, 10), pygame.SRCALPHA)
+        )
+        self.player.mask.fill()
+
+        self.player.update_ground_state()
+        self.assertFalse(self.player.on_ground)
+
+    def test_ground_contact_works_when_player_mask_bottom_row_is_transparent(self):
+        platform = pygame.sprite.Sprite()
+        platform.rect = pygame.Rect(0, 50, 20, 20)
+        surface = pygame.Surface((20, 20), pygame.SRCALPHA)
+        surface.fill((255, 255, 255))
+        platform.mask = pygame.mask.from_surface(surface)
+        sys.modules["scenes.real_game"].platforms_group.add(platform)
+
+        player_surface = pygame.Surface((10, 10), pygame.SRCALPHA)
+        player_surface.fill((255, 255, 255))
+        player_surface.fill((0, 0, 0, 0), pygame.Rect(0, 9, 10, 1))
+        self.player.rect = pygame.Rect(0, 40, 10, 10)
+        self.player.calc_x = 0
+        self.player.calc_y = 40
+        self.player.mask = pygame.mask.from_surface(player_surface)
+
+        self.player.update_ground_state()
+        self.assertTrue(self.player.on_ground)
+
 
 if __name__ == "__main__":
     unittest.main()
