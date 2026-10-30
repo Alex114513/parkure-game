@@ -64,21 +64,7 @@ def new_save(name):
     }
 
     #level data
-    level_data = {
-        "current_level": 1,
-        "unlocked_levels": [1],
-        "1": {
-            "enemies": [
-                {"type": "enemy1", "position": [100, 100]},
-                {"type": "enemy2", "position": [200, 200]}
-            ],
-            "platforms": [
-                {"position": [0, 150], "size": [100, 20], "rotation": 0},
-                {"position": [200, 300], "size": [150, 20], "rotation": 0}
-            ]
-        }
-
-    }
+    level_data = const.DEFAULT_LEVLE
     try:
         (save_path / "player.json").write_text(json.dumps(player_data, indent=4))
         (save_path / "level.json").write_text(json.dumps(level_data, indent=4))

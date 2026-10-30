@@ -56,3 +56,21 @@ DEAFAULT_FONT  = pygame.font.Font(None, 20)
 #animation
 clap_abs = 0.05
 change_speed = 0.4
+
+DEFAULT_LEVLE = {
+    "current_level": 1,
+    "unlocked_levels": [1],
+    "1": {
+        "enemies": [
+            {"type": "normal", "position": [100, 100]},
+            {"type": "normal", "position": [200, 200]}
+        ],
+        "platforms": [
+            {"position": [0, 150], "size": [100, 20], "rotation": 0},
+            {"position": [200, 300], "size": [150, 20], "rotation": 0}
+        ]
+    }
+
+}
+
+NORMAL_ENEMY = "normal"

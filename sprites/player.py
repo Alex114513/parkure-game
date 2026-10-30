@@ -264,4 +264,11 @@ class Player(pygame.sprite.Sprite):
         global_var.Edit_mode_currsor.update()
     def init_edit_mode(self):
         global_var.Edit_mode_currsor = edit_mode_currsor.Edit_mode_cursor(self)
+
+    def ask_position(self):
+        ret = {
+            "x_pos": self.calc_x, 
+            "y_pos": self.calc_y
+        }
+        return ret
         

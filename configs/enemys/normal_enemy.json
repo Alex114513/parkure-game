@@ -1,0 +1,18 @@
+{
+    "image": {
+        "width": 64, 
+        "hight": 64, 
+        "path": "pict/enemys/normal_enemy.png"
+    }, 
+    "movement": {
+        "xaccseleration": 1, 
+        "xmax": 3
+    }, 
+    "phisics": {
+        "ygravity": 0.5, 
+        "ymaxdrop": 2
+    }, 
+    "damage": {
+        "normal_hit": 1
+    }
+}

@@ -8,6 +8,7 @@ from sprites.player import Player
 from sprites.work.masks import mask
 from pygame.locals import *
 from sprites.ground.platform import Platform
+from sprites.enemys.normal import Normal_enemy
 
 #save
 Save_name = None
@@ -117,6 +118,16 @@ def init():
         platforms_group.add(new_platform)
         tools.log(f"platform created at position: {pos} with size: {size} and rotation: {rotation}" , const.DEBUG)
         #add new_platform to the appropriate sprite group for platforms
+    
+    #enemys
+    for enemy in this_level_data["enemies"]:
+        this_pos = enemy["position"]
+        this_type = enemy["type"]
+        if this_type == const.NORMAL_ENEMY:
+            new_enemy = Normal_enemy(this_pos[0], this_pos[1])
+
+        enemies_group.add(new_enemy)
+        tools.log(f"REAL_GAME/INIT: Created new enemy at {this_pos} with type {this_type}", const.INFO)
 
 def reload_level():
     global current_level, unlocked_levels, level_sprites
@@ -287,6 +298,8 @@ def start(save_name):
         platforms_group.draw(scenes.main_title.screen)
         player_group.update()
         platforms_group.update()
+        enemies_group.update()
+        enemies_group.draw(scenes.main_title.screen)
         player_group.draw(scenes.main_title.screen)
         if global_var.Edit_mode_currsor:
             scenes.main_title.screen.blit(global_var.Edit_mode_currsor.image, global_var.Edit_mode_currsor.rect)

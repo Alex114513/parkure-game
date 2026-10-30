@@ -6,14 +6,14 @@
     "1": {
         "enemies": [
             {
-                "type": "enemy1",
+                "type": "normal",
                 "position": [
                     100,
                     100
                 ]
             },
             {
-                "type": "enemy2",
+                "type": "normal",
                 "position": [
                     200,
                     200
