@@ -93,59 +93,56 @@ class Player(pygame.sprite.Sprite):
     def move_axis(self, dx, dy):
         tmp_x = self.rect.x
         tmp_y = self.rect.y
-        if dx != 0:
-            self.rect.x += dx
-            self.calc_x += dx
-            if self.collide():
-                direction = 1 if dx > 0 else -1
-                flag2 = False
-                for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                    tools.log(f"Resolving smooth down-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                    if self.collide():
-                        self.rect.y -= 1
-                        self.calc_y -= 1
-                        self.velocity_y = 0
-                        tools.log(f"Resovled smooth down-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                        flag2 = True
-                        break
-                    self.rect.y += 1
-                    self.calc_y += 1
-                if flag2 == False:
-                    tools.log("Faild to resolve smooth down-slope", const.DEBUG)
-                    self.rect.y = tmp_y  # Reset to original position if no collision detected
-                    self.calc_y = tmp_y
-                
-                flag = False
-                for i in range(10):  # Limit the number of iterations to prevent infinite loops
-                    #tools.log(f"Resovling smooth up-slope: step{i}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                    if not self.collide():
-                        tools.log(f"Resovled smooth up-slope, coliding?:{self.collide()}, player_pos: (x: {self.calc_x} y: {self.calc_y})", const.DEBUG)
-                        flag = True
-                        break
-                    self.rect.y -= 1
-                    self.calc_y -= 1
-                
-                if flag == False:
-                    self.rect.y = tmp_y
-                    self.calc_y = tmp_y
-            
-                if self.collide():
-                    tools.log("Faild to resovle smooth slope", const.DEBUG)
-                    while self.collide():
-                        self.rect.x -= direction
-                        self.calc_x -= direction
-                    tools.log(f"Got player out of collision.collide?:{self.collide()}, on_ground(func)?:{self.check_on_ground()}, on_ground(var)?:{self.on_ground}", const.DEBUG)
-                    self.velocity_x = 0
 
-        if dy != 0:
-            self.rect.y += dy
-            self.calc_y += dy
-            if self.collide():
-                direction = 1 if dy > 0 else -1
-                while self.collide():
-                    self.rect.y -= direction
-                    self.calc_y -= direction
-                self.velocity_y = 0
+        # move the player along the x-axis
+        self.rect.x += dx
+        self.calc_x += dx
+        if self.collide():
+            can_move_up = False
+            if dx != 0 and dy == 0 and self.on_ground:
+                for _ in range(const.CLICES_WHILE_MOVING):
+                    self.rect.y -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                    self.calc_y -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                    if not self.collide() and self.check_on_ground():
+                        can_move_up = True
+                        break
+            if not can_move_up:
+                self.rect.y = tmp_y
+                self.calc_y = tmp_y + global_var.camera_y
+                # move step by step to find a valid position
+                while self.collide() and self.rect.x != tmp_x:
+                    if dx > 0:
+                        self.rect.x -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                        self.calc_x -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                    elif dx < 0:
+                        self.rect.x += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                        self.calc_x += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                if self.rect.x == tmp_x:
+                    self.calc_x = tmp_x + global_var.camera_x
+                self.velocity_x = 0
+        else:
+            #try smooth down-slope movement
+            if dy == 0 and self.on_ground:
+                self.rect.y += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                self.calc_y += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                if self.collide():
+                    self.rect.y = tmp_y
+                    self.calc_y = tmp_y + global_var.camera_y
+
+        #move the player along the y-axis
+        self.rect.y += dy
+        self.calc_y += dy
+        if self.collide():
+            #move step by step to find a valid position
+            while self.collide() and self.rect.y != tmp_y:
+                if dy > 0:
+                    self.rect.y -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                    self.calc_y -= const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                elif dy < 0:
+                    self.rect.y += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+                    self.calc_y += const.SINGLE_STEP_WHILE_FINDING_VALID_POSITION
+            self.calc_y = tmp_y + global_var.camera_y
+            self.velocity_y = 0
 
     def collide(self):
         if self.calc_x < 0:
@@ -173,22 +170,19 @@ class Player(pygame.sprite.Sprite):
             return False
 
         effective_bottom = max(bounds.bottom for bounds in mask_bounds_list)
-        ground_mask = pygame.mask.Mask((mask_width, 2))
-        for y in range(max(0, effective_bottom - 2), effective_bottom):
-            for x in range(mask_width):
-                if self.mask.get_at((x, y)):
-                    ground_mask.set_at((x, y - (effective_bottom - 2)), 1)
+        ground_mask = pygame.mask.Mask((mask_width, 1))
+        for x in range(mask_width):
+            if self.mask.get_at((x, effective_bottom - 1)):
+                ground_mask.set_at((x, 0), 1)
 
         for platform in real_game.platforms_group:
-            player_mask_bottom = self.rect.top + effective_bottom
-            if not player_mask_bottom <= platform.rect.top <= player_mask_bottom + 2:
-                continue
-            offset = (
-                platform.rect.left - self.rect.left,
-                platform.rect.top - player_mask_bottom,
-            )
-            if ground_mask.overlap(platform.mask, offset):
-                return True
+            for gap in range(3):
+                offset = (
+                    platform.rect.left - self.rect.left,
+                    platform.rect.top - (self.rect.top + effective_bottom + gap),
+                )
+                if ground_mask.overlap(platform.mask, offset):
+                    return True
 
         return False
     

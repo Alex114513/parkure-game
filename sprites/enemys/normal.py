@@ -34,14 +34,32 @@ class Normal_enemy(pygame.sprite.Sprite):
         return False
 
     def try_move(self, mx, my):
+        org_x = self.calc_x
+        org_y = self.calc_y
+        if mx < 0: 
+            xmove = -0.1
+        else:
+            xmove = 0.1
+        if my < 0: 
+            ymove = -0.1
+        else:
+            ymove = 0.1
+        count = 0
         self.calc_x += mx
-        while self.colide():
-            self.calc_x += -mx
-            self.rect.x = self.calc_x % global_var.window_size[0]            
+        while self.colide() and count <= mx * 10:
+            self.calc_x += -xmove
+            count += 1
+            self.rect.x = self.calc_x % global_var.window_size[0]
+        if self.colide():
+            self.calc_x = org_x
+        count = 0         
         self.calc_y += my
-        while self.colide():
-            self.calc_y += -my
+        while self.colide() and count <= my * 10:
+            self.calc_y += -ymove
+            count += 1
             self.rect.y = self.calc_y % global_var.window_size[1]
+        if self.colide():
+            self.calc_y = org_y
             
 
     def fix_velocity_by_limmit(self):
